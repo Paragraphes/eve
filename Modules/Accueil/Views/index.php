@@ -1,0 +1,1 @@
+Accueil <?php var_dump($test);?>

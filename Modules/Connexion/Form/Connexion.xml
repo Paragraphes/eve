@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<form>
+	<form_elem form_type="StringField">
+		<info name="label" value="LOGIN" />
+		<info name="name" value="login" />
+	</form_elem>
+	<form_elem form_type="PasswordField">
+		<info name="label" value="PASSWORD" />
+		<info name="name" value="password" />
+	</form_elem>
+</form>
