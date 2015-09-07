@@ -1,0 +1,9 @@
+.project
+bdd/
+bdd/**
+Applications/**/Config/Config.class.php
+Log/**
+Upload/**
+.settings/
+.settings/**
+.buildpath
