@@ -62,14 +62,6 @@ abstract class Entity {
 			$this->hydrate($data);
 		}
 	}
-
-	/*public static function pushApplication(\Library\Application $pApp) {
-		self::$app = $pApp;
-	}
-	
-	public static function getApplication() {
-		return self::$app;
-	}*/
 	
 	/**
 	 * Indicate if an {@see \Library\Entity} is new or if it has be given by

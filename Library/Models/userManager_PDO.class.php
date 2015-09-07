@@ -10,7 +10,16 @@ use Library\Models\userManager;
 class userManager_PDO extends \Library\Manager_PDO implements userManager {
 	
 	const ERROR10300 = "Error 10300: There already exists a user with this login.";
+	const ERROR10310 = "Error 10310: Failed to update value.";
+	const ERROR10315 = "Error 10315: Failed to insert value.";
+	const ERROR10316 = "Error 10316: Failed to insert value.";
 	const ERROR10390 = "Error 10390: The key must be a user.";
+	const ERROR10392 = "Error 10392: The ID must be a number.";
+	const ERROR10394 = "Error 10394: The ID must be a number.";
+	const ERROR10395 = "Error 10395: The ID must be a number.";
+	const ERROR10396 = "Error 10396: The ID must be a number.";
+	const ERROR10397 = "Error 10397: The ID must be a number.";
+	const ERROR10398 = "Error 10398: The ID must be a number.";
 	const ERROR10399 = "Error 10399: The ID must be a number.";
 	
 	public function getList(array $conditions = array(), array $param = array()) {
@@ -181,19 +190,19 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 	 */
 	public function sendInOneGroup($pUserId, $pGroupeId) {
 		if (!(is_numeric($pUserId) && is_numeric($pGroupeId)))
-			return -1;
-		
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR10397, __FILE__, __LINE__), \Library\Exception\PDOException::INVALID_ID);
+			
 		if (!$this->userHasGroup($pUserId, $pGroupeId)) {
-			return $this->updateGroupeUser($pUserId, $pGroupeId);
+			$this->updateGroupeUser($pUserId, $pGroupeId);
 		} else {
-			return $this->insertInGroup($pUserId, $pGroupeId);
+			$this->insertInGroup($pUserId, $pGroupeId);
 		}
 		
 	}
 	
 	public function insertInGroup($pUserId, $pGroupeId) {
 		if (!(is_numeric($pUserId) && is_numeric($pGroupeId)))
-			return -1;
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR10396, __FILE__, __LINE__), \Library\Exception\PDOException::INVALID_ID);
 		
 		if (!$this->isInGroup($pUserId, $pGroupeId)) {
 			$query = $this->dao->prepare("
@@ -215,16 +224,14 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 			$query->bindValue(":pUserId", $pUserId, \PDO::PARAM_INT);
 			
 			if (!$query->execute())
-				return -1;
+				throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR10315, __FILE__, __LINE__), \Library\Exception\PDOException::QUERY_FAIL);
 		}
-		
-		return 1;
 	}
 	
 	public function removeInGroup($pUserId, $pGroupeId) {
 		if (!(is_numeric($pUserId) && is_numeric($pGroupeId)))
-			return -1;
-
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR10395, __FILE__, __LINE__), \Library\Exception\PDOException::INVALID_ID);
+			
 		$query = $this->dao->prepare("
 				DELETE FROM
 					user_groupe
@@ -238,14 +245,12 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 		$query->bindValue(":pUserId", $pUserId, \PDO::PARAM_INT);
 			
 		$query->execute();
-		return 1;
-		
 	}
 	
 	protected function updateGroupeUser($pUserId, $pGroupeId) {
 		if (!(is_numeric($pUserId) && is_numeric($pGroupeId)))
-			return -1;
-
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR10394, __FILE__, __LINE__), \Library\Exception\PDOException::INVALID_ID);
+			
 		$query = $this->dao->prepare("
 				UPDATE
 					user_groupe
@@ -259,9 +264,9 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 		$query->bindValue(":pUserId", $pUserId, \PDO::PARAM_INT);
 			
 		$query->execute();
-		return 1;
 	}
 	
+	//TODO: change return "" to exceptions?
 	public function getAttribute($pId, $pAttr) {
 		if (!(is_numeric($pId)))
 			return "";
@@ -295,14 +300,14 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 	
 	public function sendAttribute($pId, $pAttr, $pVal) {
 		if (!is_numeric($pId))
-			return -1;
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR10392, __FILE__, __LINE__), \Library\Exception\PDOException::INVALID_ID);
 		
 		$test = $this->getAttribute($pId, $pAttr);
 		
 		if ($test == "" || $test == null)
-			return $this->insertAttribute($pId, $pAttr, $pVal);
+			$this->insertAttribute($pId, $pAttr, $pVal);
 		else
-			return $this->updateAttribute($pId, $pAttr, $pVal);
+			$this->updateAttribute($pId, $pAttr, $pVal);
 	}
 	
 	protected function insertAttribute($pId, $pAttr, $pVal) {
@@ -325,10 +330,8 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 		$query->bindValue(":pUserAttr", $pAttr, \PDO::PARAM_STR);
 		$query->bindValue(":pUserVal", $pVal, \PDO::PARAM_STR);
 		
-		if ($query->execute())
-			return 1;
-		else
-			return -2;
+		if (!$query->execute())
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR10316, __FILE__, __LINE__), \Library\Exception\PDOException::QUERY_FAIL);
 	}
 	
 	protected function updateAttribute($pId, $pAttr, $pVal) {
@@ -347,10 +350,8 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 		$query->bindValue(":pUserAttr", $pAttr, \PDO::PARAM_STR);
 		$query->bindValue(":pUserVal", $pVal, \PDO::PARAM_STR);
 		
-		if ($query->execute())
-			return 1;
-		else
-			return -3;
+		if (!$query->execute())
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR10310, __FILE__, __LINE__), \Library\Exception\PDOException::QUERY_FAIL);
 	}
 	
 	public function deleteAttribute($pId, $pAttr) {
@@ -367,8 +368,6 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 		$query->bindValue(":pUserAttr", $pAttr, \PDO::PARAM_STR);
 		
 		$query->execute();
-		
-		return 1;
 	}
 	
 	public function getUserAttribute ($pId) {
@@ -410,8 +409,6 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 		$query->bindValue(":pUserId", $pId, \PDO::PARAM_INT);
 		
 		$query->execute();
-		
-		return 1;
 	}
 }
 

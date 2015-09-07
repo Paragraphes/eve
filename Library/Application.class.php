@@ -120,7 +120,6 @@ abstract class Application{
 		$this->user = new User($this);
 		
 		self::$app = $this;
-		//\Library\Entity::pushApplication($this);
 	}
 	
 	/**
