@@ -33,6 +33,16 @@ if (!defined("EVE_APP"))
  * @version 1.0
  */
 class SelectField extends Field{
+	
+	/**
+	 * There was an error with the number of brackets while parsing.
+	 */
+	const ERROR750 = "Error 750: The argument format is invalid.";
+	/**
+	 * There was an error with the number of brackets while parsing.
+	 */
+	const ERROR751 = "Error 751: The argument format is invalid.";
+	
 	/**
 	 *All the different values of the select field. the elements of the array could be
 	 *
@@ -116,7 +126,7 @@ class SelectField extends Field{
 	 * @param int $lvl
 	 * 			The current level of the array (means optgroup)
 	 * 
-	 * @throws \IllegalArgumentException
+	 * @throws \InvalidArgumentException
 	 * 			If there is an error on the number of braquet
 	 * 
 	 * @return mixed[]
@@ -132,10 +142,7 @@ class SelectField extends Field{
 				$tArray[substr($val, 1)] = $temp[0];
 			}elseif(substr($val, -1, 1) == ']'){
 				if($lvl <= 0){
-					if (\Library\Application::appConfig()->getConst("LOG"))
-						throw new \IllegalArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Form", "Le format des arguments n'est pas valide", __FILE__, __LINE__));
-					else
-						throw new \IllegalArgumentException("Le format des arguments n'est pas valide");
+					throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Form", self::ERROR750, __FILE__, __LINE__));
 				}else{
 					$tArray[] = substr($val, 0, -1);
 					return array($tArray, $i);
@@ -145,10 +152,7 @@ class SelectField extends Field{
 			}
 		}
 		if($lvl != 0)
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \IllegalArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Form", "Le format des arguments n'est pas valide", __FILE__, __LINE__));
-			else
-				throw new \IllegalArgumentException("Le format des arguments n'est pas valide");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Form", self::ERROR751, __FILE__, __LINE__));
 		
 		return array($tArray, ++$key);
 	}

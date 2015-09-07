@@ -14,7 +14,8 @@ if (!defined("EVE_APP"))
  * 
  * - The ressource value will be passed
  * - The array element will return a Json array
- * - The object will create a Json object and write all the public atributes plus all the value of the public method so that the name match a protected/private attribute
+ * - The object will create a Json object and write all the public atributes plus all the value of the public method 
+ *   so that the name match a protected/private attribute
  * - The basic value are writen in a standard XML format
  * 
  * The maximal depth of the XML object is 20
@@ -27,6 +28,11 @@ if (!defined("EVE_APP"))
  */
 class PageXml extends Page {
 	
+	const MAX_DEPTH = 20;
+	
+	protected $valid = 1;
+	protected $errors = array();
+	
 	/**
 	 * The function that encodes the XML
 	 * 
@@ -38,16 +44,28 @@ class PageXml extends Page {
 	protected function xml_encode($mixed, \DOMElement $domElement = NULL, \DOMDocument $DOMDocument = NULL, $depth = 0) {
 		$depth++;
 		if ($depth > 20) {
+			$this->valid = 0;
+			$this->errors[] = "Maximum depth reached";
 			return @$DOMDocument->saveXML();
 		}
 		if (is_null($DOMDocument)) {
 			$DOMDocument = new \DOMDocument;
 			$DOMDocument->formatOutput = true;
 			
-			$rootNode = $DOMDocument->createElement('entries');
+			$rootNode = $DOMDocument->createElement('xml');
 			$DOMDocument->appendChild($rootNode);
 			
-			$this->xml_encode($mixed, $rootNode, $DOMDocument, $depth);
+			$contentNode = $DOMDocument->createElement('content');
+			$rootNode->appendChild($contentNode);
+			$this->xml_encode($mixed, $contentNode, $DOMDocument, $depth);
+			
+			$validNode = $DOMDocument->createElement('valid');
+			$rootNode->appendChild($validNode);
+			$validNode->appendChild($DOMDocument->createTextNode($this->valid));
+			
+			$errorNode = $DOMDocument->createElement('errors');
+			$rootNode->appendChild($errorNode);
+			$this->xml_encode($this->errors, $errorNode, $DOMDocument);
 			
 			return @$DOMDocument->saveXML();
 		} else {
@@ -67,7 +85,7 @@ class PageXml extends Page {
 					}
 				}
 			} elseif (is_object($mixed)) {
-				$class = new \ReflectionClass($mixed);
+				$class = new \ReflectionObject($mixed);
 				$props = $class->getProperties(\ReflectionProperty::IS_PUBLIC);
 					
 				if ($class->getNamespaceName() != "Library") {
@@ -82,28 +100,29 @@ class PageXml extends Page {
 					}
 					
 					$props = $class->getProperties(\ReflectionProperty::IS_PROTECTED | \ReflectionProperty::IS_PRIVATE);
-					$meth = $class->getMethods(\ReflectionMethod::IS_PUBLIC);
+					$meth = array_map(function($m) { return $m->getName(); }, $class->getMethods(\ReflectionMethod::IS_PUBLIC));
 					
 					foreach ($props AS $p) {
 						try {
-							$geter = $p->getName();
+							$pname = $p->getName();
 							
-							$val = $mixed->$geter();
-							
-							$this->xml_encode(array($p->getName() => $val), $node, $DOMDocument, $depth);
-								
-						} catch (\Exception $e) {
-							try {
-								$geter = "set" . ucfirst($p->getName());
-								
-								$val = $mixed->$geter();
-								
-								$this->xml_encode(array($p->getName() => $val), $node, $DOMDocument, $depth);
-								
-							} catch (\Exception $e) {
-								
+							if(in_array($pname, $meth) | in_array("__call", $meth))
+								$get = $pname;
+							elseif(in_array("get" . ucfirst($pname), $meth))
+								$get = "get" . ucfirst($pname);
+							else {
+								$this->valid = 0;
+								$this->errors[] = "Could not get property '$pname'";
+								continue;
 							}
 							
+							$val = $mixed->$get();
+							
+							$this->xml_encode(array($pname => $val), $node, $DOMDocument, $depth);
+								
+						} catch (\Exception $e) {
+							$this->valid = 0;
+							$this->errors[] = "Exception while getting property '$pname'";
 						}
 					}
 				}
@@ -120,10 +139,42 @@ class PageXml extends Page {
 	 * (non-PHPdoc)
 	 * @see \Library\Page\Page::generate()
 	 */
-	public function generate(){
+	public function generate() {
 		$this->app->httpResponse()->addHeader('Content-type: application/xml');
-		
 		return $this->xml_encode($this->vars); 
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see \Library\Page\Page::generate403()
+	 */
+	public function generate403() {
+		$this->app->httpResponse()->addHeader('Content-type: application/xml');
+		$this->valid = 0;
+		$this->errors[] = "403 connection lost";
+		return $this->xml_encode(array());
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see \Library\Page\Page::generate404()
+	 */
+	public function generate404() {
+		$this->app->httpResponse()->addHeader('Content-type: application/xml');
+		$this->valid = 0;
+		$this->errors[] = "404 connection lost";
+		return $this->xml_encode(array());
+	}
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see \Library\Page\Page::generateDefaultError()
+	 */
+	public function generateDefaultError() {
+		$this->app->httpResponse()->addHeader('Content-type: application/xml');
+		$this->valid = 0;
+		$this->errors[] = "connection lost";
+		return $this->xml_encode(array());
 	}
 }
 

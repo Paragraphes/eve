@@ -61,6 +61,57 @@ abstract class Page extends \Library\ApplicationComponent {
 	 * @return string
 	 */
 	abstract public function generate();
+	
+	/**
+	 * This function is used to decide what to display in the event of a 403 error.
+	 * 
+	 * @return string
+	 */
+	public function generate403() {
+		$content = "403: Access Forbidden";
+		
+		ob_start();
+		if (key_exists("template", $this->attribute) && $this->attribute["template"])
+			require(__DIR__ . '/../../Applications/' . $this->app->name() . '/Templates/layout.php');
+		else
+			echo $content;
+		
+		return ob_get_clean();
+	}
+	
+	/**
+	 * This function is used to decide what to display in the event of a 404 error.
+	 * 
+	 * @return string
+	 */
+	public function generate404() {
+		$content = "404: Page Not Found";
+		
+		ob_start();
+		if (key_exists("template", $this->attribute) && $this->attribute["template"])
+			require(__DIR__ . '/../../Applications/' . $this->app->name() . '/Templates/layout.php');
+		else
+			echo $content;
+		
+		return ob_get_clean();
+	}
+	
+	/**
+	 * This function is used to display an error when no matching code was found.
+	 * 
+	 * @return string
+	 */
+	public function generateDefaultError() {
+		$content = "Error";
+		
+		ob_start();
+		if (key_exists("template", $this->attribute) && $this->attribute["template"])
+			require(__DIR__ . '/../../Applications/' . $this->app->name() . '/Templates/layout.php');
+		else
+			echo $content;
+		
+		return ob_get_clean();
+	}
 }
 
 ?>

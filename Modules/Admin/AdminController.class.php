@@ -6,7 +6,8 @@ if (!defined("EVE_APP"))
 	exit();
 
 class AdminController extends \Library\BackController{
-	public function executeIndex(){
+	public function executeIndex(\Library\HTTPRequest $request){
+		
 	}
 }
 

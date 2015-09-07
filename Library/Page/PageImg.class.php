@@ -18,11 +18,14 @@ if (!defined("EVE_APP"))
  * - imageFormat : the format of the image, by default will be PNG
  * - name : the name of the image, by default md5 of the time
  * 
- * It checks if the download folder is well based (it means that the root folder of the download is well the folder of download given in the application config file).
+ * It checks if the download folder is well based (it means that the root folder of the download
+ * is well the folder of download given in the application config file).
  * 
- * The image is an {@see \imagecreatetruecolor()} and the content file has to use functions that work on it. The name of the image variable is $image
+ * The image is an {@see \imagecreatetruecolor()} and the content file has to use functions that work on it.
+ * The name of the image variable is $image
  * 
- * The text content of the content file will be added on the image. If no text is needed on the image, then the content file should avoid to write anything.
+ * The text content of the content file will be added on the image.
+ * If no text is needed on the image, then the content file should avoid to write anything.
  * 
  * The different possible format are JPG, PNG and GIF 
  * 
@@ -34,16 +37,15 @@ if (!defined("EVE_APP"))
  */
 class PageImg extends Page {
 	
+	const ERROR1040 = "Error 1040: The image must have dimensions (x and y).";
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see \Library\Page\Page::generate()
 	 */
 	public function generate(){
 		if (!key_exists("imageX", $this->attribute) || !key_exists("imageY", $this->attribute))
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \IllegalArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Page", "The image has to have a dimension (x and y)", __FILE__, __LINE__));
-			else
-				throw new \IllegalArgumentException("The image has to have a dimension (x and y)");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Page", self::ERROR1040, __FILE__, __LINE__));
 		
 		if (key_exists("imageFormat", $this->attribute))
 			$imageFormat = $this->attribute["imageFormat"];

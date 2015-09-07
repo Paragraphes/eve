@@ -44,6 +44,8 @@ class AccessException extends \Exception {
 	 * @var int
 	 */
 	const NOT_ALLOWED = 5;
+	
+	const MOVED_PERMANENTLY = 6;
 }
 
 ?>

@@ -9,7 +9,8 @@ if (!defined("EVE_APP"))
 /**
  * The configuration class.
  * 
- * This class gives all the configuration informations that the application may need and that is saved on the sever. This configuration informations are easier to change than the informations on the {@see \Library\AppConfig}
+ * This class gives all the configuration informations that the application may need and that is saved on the server.
+ * This configuration informations are easier to change than the informations on the {@see \Library\AppConfig}
  *
  * @copyright ParaGP Swizerland
  * @author Zellweger Vincent

@@ -8,7 +8,8 @@ if (!defined("EVE_APP"))
 /**
  * Class Manager specialized for PDO.
  * 
- * This class describes all the different classes that are needed by {@see \Library\Manager} to work. Those functions are generalized and could be overrided to change their work.
+ * This class describes all the different classes that are needed by {@see \Library\Manager} to work.
+ * Those functions are generalized and could be overrided to change their work.
  * 
  * It avoids the user to create all the basic functions that are normaly used.
  * 
@@ -20,6 +21,17 @@ if (!defined("EVE_APP"))
  * @abstract
  */
 abstract class Manager_PDO extends \Library\Manager {
+	
+	const ERROR900 = "Error 900: The parameter type is not valid.";
+	const ERROR901 = "Error 901: The parameter type is not valid.";
+	const ERROR905 = "Error 905: The parameter type is not valid - [%s] is not a %s.";
+	const ERROR906 = "Error 906: The parameter type is not valid - [%s] is not a %s.";
+	const ERROR1400 = "Error 1400: ID could not be found.";
+	const ERROR1410 = "Error 1410: Failed to update value.";
+	const ERROR1415 = "Error 1415: Failed to insert value.";
+	const ERROR1420 = "Error 1420: Failed to delete value.";
+	const ERROR1498 = "Error 1498: The ID must be a number.";
+	const ERROR1499 = "Error 1499: The ID must be a number.";
 	
 	/**
 	 * The name of the table
@@ -86,12 +98,14 @@ abstract class Manager_PDO extends \Library\Manager {
 		$this->listeElem = \Library\DataTyper::getDataType($module, $model);
 	}
 	
+	//TODO: doc
 	public function getShortName() {
 		if (!isset($this->shortName))
 			$this->shortName =  "`#" . strtolower(implode("", array_map(function ($arg) {return substr($arg, 0, 1);}, explode("_", $this->table_name)))) . "`";
 		return $this->shortName;
 	}
 	
+	//TODO: doc
 	public function fullSelect() {
 		
 		$host = $this;
@@ -107,7 +121,7 @@ abstract class Manager_PDO extends \Library\Manager {
 	 */
 	public function get($pId) {
 		if (!is_numeric($pId))
-			return null;
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR1499, __FILE__, __LINE__), \Library\Exception\PDOException::INVALID_ID);
 		
 		if (!in_array($pId, $this->listeObj)) {
 			$sql = "SELECT `" . implode("`, `", array_keys($this->listeElem)) . "` FROM " . $this->table_name . " WHERE id = :pId;";
@@ -121,6 +135,8 @@ abstract class Manager_PDO extends \Library\Manager {
 			$query->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $this->entity_name);
 			$this->listeObj[$pId] = $query->fetch();
 		}
+		if(empty($this->listeObj[$pId]) && func_num_args() >= 2 && !func_get_arg(1))
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR1400, __FILE__, __LINE__), \Library\Exception\PDOException::EMPTY_RESULT);
 		
 		return $this->listeObj[$pId];
 	}
@@ -145,10 +161,7 @@ abstract class Manager_PDO extends \Library\Manager {
 		
 		foreach ($param AS $val) {
 			if (!(is_array($val) && key_exists("key", $val) && key_exists("val", $val)))
-				if (\Library\Application::appConfig()->getConst("LOG"))
-					throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Manager", "ParamError", "The parameter type is not valid", __FILE__, __LINE__));
-				else
-					throw new \InvalidArgumentException("The parameter type is not valid");
+				throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Manager", self::ERROR900, __FILE__, __LINE__));
 			
 			if (key_exists("type", $val)) {
 				$type = "";
@@ -168,10 +181,7 @@ abstract class Manager_PDO extends \Library\Manager {
 				}
 				
 				if ($type != "")
-					if (\Library\Application::appConfig()->getConst("LOG"))
-						throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Manager", "ParamError", "The parameter type is not valid [" . $val["val"] . "] is not a " . $type, __FILE__, __LINE__));
-					else
-						throw new \InvalidArgumentException("The parameter type is not valid [" . $val["val"] . "] is not a " . $type);
+					throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Manager", sprintf(self::ERROR905, $val["val"], $type), __FILE__, __LINE__));
 
 				$query->bindValue($val["key"], $val["val"], $val["type"]);				
 			} else {
@@ -217,9 +227,9 @@ abstract class Manager_PDO extends \Library\Manager {
 		}
 		
 		if ($query->execute()) {
-			return 1;
+			return $pEntity;
 		} else {
-			return -2;
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR1410, __FILE__, __LINE__), \Library\Exception\PDOException::QUERY_FAIL);
 		}
 		
 	}
@@ -261,9 +271,9 @@ abstract class Manager_PDO extends \Library\Manager {
 		
 		if ($query->execute()) {
 			$pEntity->setId($this->dao->lastInsertId());
-			return 1;
+			return $pEntity;
 		} else {
-			return -2;
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR1415, __FILE__, __LINE__), \Library\Exception\PDOException::QUERY_FAIL);
 		}
 	}
 	
@@ -304,7 +314,7 @@ abstract class Manager_PDO extends \Library\Manager {
 			
 			if (count($ret) > 0) {
 				$pEntity->setId($ret[0]->id);
-				return 1;
+				return $pEntity;
 			}
 		}
 		
@@ -323,10 +333,7 @@ abstract class Manager_PDO extends \Library\Manager {
 		if (is_numeric($pId) && $pId > 0) 
 			return $this->deleteList(array("id = " . $pId));
 		
-		if (\Library\Application::appConfig()->getConst("LOG"))
-			throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Manager_PDO", "The ID has to be numeric value", __FILE__, __LINE__));
-		else
-			throw new \InvalidArgumentException("The ID has to be numeric value");
+		throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR1498, __FILE__, __LINE__), \Library\Exception\PDOException::INVALID_ID);
 	}
 	
 	/**
@@ -347,10 +354,7 @@ abstract class Manager_PDO extends \Library\Manager {
 		
 		foreach ($param AS $val) {
 			if (!(is_array($val) && key_exists("key", $val) && key_exists("val", $val)))
-				if (\Library\Application::appConfig()->getConst("LOG"))
-					throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Manager", "ParamError", "The parameter type is not valid", __FILE__, __LINE__));
-				else
-					throw new \InvalidArgumentException("The parameter type is not valid");
+				throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Manager", self::ERROR901, __FILE__, __LINE__));
 			
 			if (key_exists("type", $val)) {
 				$type = "";
@@ -370,10 +374,7 @@ abstract class Manager_PDO extends \Library\Manager {
 				}
 				
 				if ($type != "")
-					if (\Library\Application::appConfig()->getConst("LOG"))
-						throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Manager", "ParamError", "The parameter type is not valid [" . $val["val"] . "] is not a " . $type, __FILE__, __LINE__));
-					else
-						throw new \InvalidArgumentException("The parameter type is not valid [" . $val["val"] . "] is not a " . $type);
+					throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Manager", sprintf(self::ERROR906, $val["val"], $type), __FILE__, __LINE__));
 
 				$query->bindValue($val["key"], $val["val"], $val["type"]);				
 			} else {
@@ -382,7 +383,11 @@ abstract class Manager_PDO extends \Library\Manager {
 			} 
 		}
 		
-		return $query->execute();
+		if($query->execute()) {
+			return true;
+		} else {
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR1420, __FILE__, __LINE__), \Library\Exception\PDOException::QUERY_FAIL);
+		}
 	}
 	
 	/**

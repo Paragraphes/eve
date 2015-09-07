@@ -29,16 +29,15 @@ if (!defined("EVE_APP"))
  */
 class PagePdf extends Page {
 	
+	const ERROR1050 = "Error 1050: The given view does not exist.";
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see \Library\Page\Page::generate()
 	 */
 	public function generate(){
 		if (!file_exists($this->contentFile.".php") && !file_exists($this->contentFile."_pdf.php"))
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "Page", "La vue spécifiée n'existe pas", __FILE__, __LINE__));
-			else
-				throw new \RuntimeException("La vue spécifiée n'existe pas");
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Page", self::ERROR1050, __FILE__, __LINE__));
 		
 
 		if (key_exists("pdfSize", $this->attribute))

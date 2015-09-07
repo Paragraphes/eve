@@ -13,7 +13,8 @@ if (!defined("EVE_APP"))
  * 
  * - template : Whether  we want to show the template or not.
  * 
- * It checks if the download folder is well based (it means that the root folder of the download is well the folder of download given in the application config file).
+ * It checks if the download folder is well based (it means that the root folder of the download
+ * is well the folder of download given in the application config file).
  * 
  * @see \Library\Page\Page
  * 

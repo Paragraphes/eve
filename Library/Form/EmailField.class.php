@@ -26,6 +26,9 @@ if (!defined("EVE_APP"))
  * @version 1.0
  */
 class EmailField extends Field{
+	
+	const ERROR715 = "Error 715: The maximum length must be greater than 0.";
+	
 	/**
 	 * Max length that could be inserted in the field
 	 * @var String
@@ -56,8 +59,8 @@ class EmailField extends Field{
 	 * Setter of the max length
 	 * 
 	 * @param int $pVal
-	 * @throws \IllegalArgumentException
-	 * 				if the max length is lower or equels to 0
+	 * @throws \InvalidArgumentException
+	 * 				if the max length is lower or equal to 0
 	 * @return number
 	 */
 	public function setMaxlength($pVal){
@@ -67,10 +70,7 @@ class EmailField extends Field{
 			$this->maxLength = $maxLength;
 			return 1;
 		}else{
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \IllegalArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Form", "La longueur maximale doit être un nombre supérieur à 0", __FILE__, __LINE__));
-			else
-				throw new \IllegalArgumentException("La longueur maximale doit être un nombre supérieur à 0");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Form", self::ERROR715, __FILE__, __LINE__));
 			return 0;
 		}
 	}

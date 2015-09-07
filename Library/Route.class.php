@@ -52,7 +52,8 @@ class Route{
 	protected $vars;
 	
 	/**
-	 * List with key=>value returned when the URI has ben compared with the URI of the roads, from first to last, and the different values have been returned
+	 * List with key=>value returned when the URI has ben compared with the URI of the roads, from first to last,
+	 * and the different values have been returned.
 	 * The comparition stops when the correct road has been found
 	 * 
 	 * @var mixed[]
@@ -67,6 +68,12 @@ class Route{
 	protected $admin_lvl;
 	
 	/**
+	 * Preferred support type for this page
+	 * @var unknown
+	 */
+	protected $type;
+	
+	/**
 	 * Constructor of the road.
 	 * Sets automatically all the different informations about the road
 	 * 
@@ -79,7 +86,8 @@ class Route{
 	}
 	
 	/**
-	 * Function that checks whether there exists a setter for the different keys provided in the array in parameter or not and sets the different attribute with the value
+	 * Function that checks whether there exists a setter for the different keys provided in the array in parameter
+	 * or not and sets the different attribute with the value.
 	 * 
 	 * @param mixed[] $option
 	 */
@@ -104,7 +112,9 @@ class Route{
 	}
 	
 	/**
-	* Checks if the parameter matches with the url of the road. If there is no variable and the parameter and the road are the same, then this road matches. If the patern matches with the URI provided in parameter, then this road matches. Else the road doesn't match
+	* Checks if the parameter matches with the url of the road. If there is no variable and the parameter and the road are the same,
+	* then this road matches. If the patern matches with the URI provided in parameter, then this road matches.
+	* Else the road doesn't match.
 	*
 	* @param string $url
 	* 			The uri to test
@@ -121,10 +131,10 @@ class Route{
 		if ($this->hasVars() && $this->url == $url)
 			return array(); 
 		
-		if(preg_match('`^' . $this->url . '$`', $url, $matches)){
+		if (preg_match('`^' . $this->url . '$`', $url, $matches)){
 			unset($matches[0]);
 			return $matches;
-		}else{
+		} else {
 			return false;
 		}
 	}
@@ -135,24 +145,22 @@ class Route{
 	 * @param string $action
 	 */
 	public function setAction($action){
-		if(is_string($action)){
+		if (is_string($action)){
 			$this->action = $action;
 		}
 	}
+	//TODO: parameter checks?
 	
 	/**
 	 * Setter of the ID
 	 * 
 	 * @param int $pVal
-	 * @throws \IllegalArgumentException
+	 * @throws \InvalidArgumentException
 	 * 			If the ID is not numeric
 	 */
 	public function setId($pVal){
-		if(!is_numeric($pVal) || empty($pVal))
-				if (\Library\Application::appConfig()->getConst("LOG"))
-					throw new \IllegalArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Route", "L'identifiant doit être un nombre.", __FILE__, __LINE__));
-				else
-					throw new \IllegalArgumentException("L'identifiant doit être un nombre.");
+		if (!is_numeric($pVal) || empty($pVal))
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Route", \Library\Router::ERROR1199, __FILE__, __LINE__));
 				
 		$this->id = $pVal;
 	}
@@ -198,6 +206,11 @@ class Route{
 		$this->vars = $vars;
 	}
 	
+	public function setType($type) {
+		if (is_string($type) & !empty($type))
+			$this->type = $type;
+	}
+	
 	/**
 	 * Method to add one var at the end of the varsListe. 
 	 * Add a new variable specified by his key and his value at the end of the variable list
@@ -209,17 +222,12 @@ class Route{
 	 * @param string $key
 	 * @param mixed $val
 	 * @param number $force
-	 * 
-	 * @return number
 	 */
 	public function addVarInListe($key, $val, $force = 0) {
 		if (key_exists($key, $this->varsListe) && $force == 0) {
-			trigger_error("Value already exist, impossible to replace whitout force");
-			return 0;
+			throw new \Exception(\Library\Application::logger("Error", "Route", sprintf(\Library\Router::ERROR1130, $key), __FILE__, __LINE__)->log());
 		}
-		
 		$this->varsListe[$key] = $val;
-		return 1;
 	}
 	
 	/**
@@ -274,7 +282,6 @@ class Route{
 	 * @return string[]
 	 */
 	public function vars(){
-		
 		return array_map(function($arg) {
 			return trim($arg);
 		}, explode(',', $this->vars));
@@ -290,6 +297,10 @@ class Route{
 		return $this->admin_lvl;
 	}
 	
+	public function type() {
+		return $this->type;
+	}
+	
 	/**
 	 * Return whether or not this road need a connection. It mean that the
 	 * admin_lvl is greater than 0
@@ -301,7 +312,8 @@ class Route{
 	}
 	
 	/**
-	 * Given a specific admin_lvl say whether this admin_lvl grant the access to this road or not. It means that the admin_lvl is greater to or equals the road admin_lvl
+	 * Given a specific admin_lvl say whether this admin_lvl grant the access to this road or not.
+	 * It means that the admin_lvl is greater to or equals the road admin_lvl
 	 * 
 	 * @param int $admin_lvl
 	 * @return boolean

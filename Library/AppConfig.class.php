@@ -16,7 +16,8 @@ if (!defined("EVE_APP"))
 abstract class AppConfig {
 	
 	/**
-	 * This function has to return the value of a specific constant or null if the constant is not defined. If a value is needed, and there is no value, it should return an exception.
+	 * This function has to return the value of a specific constant or null if the constant is not defined.
+	 * If a value is needed, and there is no value, it should return an exception.
 	 * 
 	 * @param String $pVal
 	 * 			The name of the constant
@@ -30,7 +31,8 @@ abstract class AppConfig {
 		if (key_exists($pVal, $class->getConstants()))
 			return $class->getConstant($pVal);
 		
-		return null;
+		//TODO: set an error code?
+		throw new \RuntimeException("Constant [" . $pVal . "] is not defined.");
 	}
 }
 

@@ -93,8 +93,13 @@ abstract class Manager{
 	 * Function that returns a {@see \Library\Entity} given its id
 	 * 
 	 * This function returns the only {@see \Library\Entity} that has a specific ID given in parameter.
+	 * If nothing with this ID is found, it will either:
+	 *  - throw an exception if its seconds parameter is false
+	 *  - return an empty {@see \Library\Entity} otherwise
 	 * 
-	 * @param int $pId
+	 * @param int $pId, bool
+	 * @throws \Library\Exception
+	 * 			If the ID is invalid, or if nothing with this ID was found and we refuse empty returns
 	 * @return \Library\Entity
 	 * 
 	 * @abstract
@@ -104,7 +109,8 @@ abstract class Manager{
 	/**
 	 * Function that returns a list of {@see \Library\Entity}
 	 * 
-	 * This function returns the list of {@see \Library\Entity} that respects all the different conditions that are provided. If no condition is provided, all the {@see \Library\Entity} of the server is returned
+	 * This function returns the list of {@see \Library\Entity} that respects all the different conditions that are provided.
+	 * If no condition is provided, all the {@see \Library\Entity} of the server is returned.
 	 * 
 	 * @param array $conditions
 	 * 		A list of valid SQL conditions
@@ -115,16 +121,17 @@ abstract class Manager{
 	 */
 	abstract function getList(array $conditions = array(), array $param = array());
 
-
 	/**
 	 * Method that checks if we need to insert or to update
 	 * 
-	 * Check whether the {@see \Library\Entity} has already an ID or not. If yes, then it should update all the information on the server. If not, then it should insert the informations.
+	 * Check whether the {@see \Library\Entity} has already an ID or not.
+	 * If yes, then it should update all the information on the server. If not, then it should insert the information.
 	 *
 	 * @param \Library\Entity $pEntity
-	 *
-	 * @return int
-	 * 		A positif value if the data has been well inserted/updated, negative oserwise
+	 * @throws \Library\Exception
+	 * 		There was an error while sending.
+	 * @return \Library\Entity
+	 * 		The {@see \Library\Entity} sent.
 	 *
 	 * @abstract
 	 */
@@ -132,14 +139,15 @@ abstract class Manager{
 
 
 	/**
-	 * Function that inserts some new value
+	 * Function that inserts a new value.
 	 * 
-	 * Inserts all the different informations from the {@see \Library\Entity} inside the DAO.
+	 * Inserts all the different information from the {@see \Library\Entity} inside the DAO.
 	 *
 	 * @param \Library\Entity $pEntity
-	 *
-	 * @return int
-	 * 		A positive value if the data has been well inserted, negative oserwise
+	 * @throws \Library\Exception
+	 * 		There was an error while inserting.
+	 * @return \Library\Entity
+	 * 		The {@see \Library\Entity} inserted.
 	 *
 	 * @abstract
 	 */
@@ -147,14 +155,15 @@ abstract class Manager{
 
 
 	/**
-	 * Function that updates some value
+	 * Function that updates a value.
 	 * 
-	 * Update all the different informations from the {@see \Library\Entity} inside of the DAO, given his ID.
+	 * Update all the different information from the {@see \Library\Entity} inside of the DAO.
 	 *
 	 * @param \Library\Entity $pEntity
-	 *
-	 * @return int
-	 * 		A positive value if the data has been well updated, negative oserwise
+	 * @throws \Library\Exception
+	 * 		There was an error while updating.
+	 * @return \Library\Entity
+	 * 		The {@see \Library\Entity} updated.
 	 *
 	 * @abstract
 	 */
@@ -178,9 +187,11 @@ abstract class Manager{
 	 * This function deletes all the information about a list of {@see \Library\Entity} that respects all the conditions given in parameter.
 	 * 
 	 * @param array $conditions
-	 * 			The list of conditions formated has valid SQL string condition
+	 * 		The list of conditions formated has valid SQL string condition
+	 * @throws \Library\Exception
+	 * 		There was an error while deleting.
 	 * @return bool
-	 * 			Whether the deletation of the information has worked or not.
+	 * 		True if everything was deleted correctly.
 	 * 
 	 * @abstract
 	 */

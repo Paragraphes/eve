@@ -8,7 +8,7 @@ if (!defined("EVE_APP"))
 /**
  * Factory to generate a {@see \Library\Page\Page}.
  * 
- * This class contains all the different informations needed for the creation of a {@see \Library\Page\} and field it with some data.
+ * This class contains all the different informations needed for the creation of a {@see \Library\Page\} and filling it with some data.
  * 
  * It is a subclass of {@see \Library\ApplicationComponent}
  * 
@@ -19,6 +19,15 @@ if (!defined("EVE_APP"))
  * @version 1.0
  */
 class PageGenerator extends ApplicationComponent{
+	
+	/**
+	 * The support does not have a subclasse of Page corresponding to it
+	 * @var unknown
+	 */
+	const ERROR1000 = "Error 1000: Error on Page instantiation.";
+	const ERROR1010 = "Error 1010: The key must be a valid String.";
+	const ERROR1020 = "Error 1020: The support must be in a valid format.";
+	const ERROR1030 = "Error 1030: The given view is invalid.";
 	
 	/**
 	 * Support on which the {@see \Library\Page\Page} has to be displayed. By default the page will be displayed as HTML data
@@ -53,6 +62,11 @@ class PageGenerator extends ApplicationComponent{
 	protected $vars = array();
 	
 	/**
+	 * If non-null, corresponds to the error code to return.
+	 */
+	protected $error = "";
+	
+	/**
 	 * Constructor of the class.
 	 * 
 	 * It has to create all the different informations that will be needed by the page such has the root and the language.
@@ -74,7 +88,7 @@ class PageGenerator extends ApplicationComponent{
 	}
 	
 	/**
-	 * GGenerator of the {@see \Library\Page\Page}.
+	 * Generator of the {@see \Library\Page\Page}.
 	 * 
 	 * This method will create some {@see \Library\Page\Page} depending on the support.
 	 * 
@@ -90,12 +104,17 @@ class PageGenerator extends ApplicationComponent{
 		$page = new $page($this->app, $this->contentFile, $this->vars, $this->attribute);
 
 		if (!($page instanceof \Library\Page\Page))
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "Page", "Error on Page instanciation", __FILE__, __LINE__));
-			else
-				throw new \RuntimeException("Error on Page instanciation");
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Page", self::ERROR1000, __FILE__, __LINE__));
 		
-		return $page->generate();
+		$method = "generate" . $this->error;
+		
+		if ($this->error == "") {
+			return $page->generate();
+		} elseif (is_callable(array($page, $method))) {
+			return $page->$method();
+		} else {
+			return $page->generateDefaultError();
+		}
 	}
 	
 	/**
@@ -287,10 +306,7 @@ class PageGenerator extends ApplicationComponent{
 	 */
 	public function addVar($key, $value, $force = false){
 		if (!is_string($key) || is_numeric($key) || empty($key))
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "Page", "The key has to be a valid String", __FILE__, __LINE__));
-			else
-				throw new \RuntimeException("The key has to be a valid String");
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Page", self::ERROR1010, __FILE__, __LINE__));
 		
 		if (key_exists($key, $this->vars) && !$force) {
 			trigger_error("Try to remove a data in set without force");
@@ -300,6 +316,7 @@ class PageGenerator extends ApplicationComponent{
 		$this->vars[$key] = $value;
 		return 1;
 	}
+	//TODO: check
 	
 	/**
 	 * Returns the value of a variable instead of a specific key.
@@ -323,7 +340,8 @@ class PageGenerator extends ApplicationComponent{
 	/**
 	 * Sets the type of a page and specifies some attribute.
 	 * 
-	 * It is allowed to use directly this method but this is unsafe since no check is made to ensure that all the attributes needed for a support is provided.
+	 * It is allowed to use directly this method but this is unsafe since no check is made to ensure that
+	 * all the attributes needed for a support is provided.
 	 * 
 	 * @param string $support
 	 * @param array $attributes
@@ -333,10 +351,7 @@ class PageGenerator extends ApplicationComponent{
 	 */
 	public function setPageType($support, array $attributes = array()) {
 		if (!is_string($support) || empty($support))
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "Page", "Le support doit être dans un format valide", __FILE__, __LINE__));
-			else
-				throw new \RuntimeException("Le support doit être dans un format valide");
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Page", self::ERROR1020, __FILE__, __LINE__));
 		
 		$this->support = $support;
 		$this->attribute = $attributes;
@@ -359,14 +374,16 @@ class PageGenerator extends ApplicationComponent{
 	 */
 	public function setContentFile($contentFile){
 		if (!is_string($contentFile) || empty($contentFile))
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "Page", "La vue spécifiée est invalide.", __FILE__, __LINE__));
-			else
-				throw new \RuntimeException("La vue spécifiée est invalide.");
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Page", self::ERROR1030, __FILE__, __LINE__));
 		
 		$this->contentFile = $contentFile;
 		
 		return 1;
+	}
+	
+	public function setError($code) {
+		if (is_numeric($code))
+			$this->error = $code;
 	}
 	
 	/**

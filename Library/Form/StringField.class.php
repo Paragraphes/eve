@@ -25,6 +25,9 @@ if (!defined("EVE_APP"))
  * @version 1.0
  */
 class StringField extends Field{
+	
+	const ERROR716 = "Error 716: The maximum length must be greater than 0.";
+	
 	/**
 	 * Max length that could be inserted in the field
 	 * @var int
@@ -59,7 +62,7 @@ class StringField extends Field{
 	 * Setter of the max length
 	 * 
 	 * @param int $pVal
-	 * @throws \IllegalArgumentException
+	 * @throws \InvalidArgumentException
 	 * 				if the max length is lower or equels to 0
 	 * @return number
 	 */
@@ -70,10 +73,7 @@ class StringField extends Field{
 			$this->maxLength = $maxLength;
 			return 1;
 		}else{
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \IllegalArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Form", "La longueur maximale doit être un nombre supérieur à 0", __FILE__, __LINE__));
-			else
-				throw new \IllegalArgumentException("La longueur maximale doit être un nombre supérieur à 0");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Form", self::ERROR716, __FILE__, __LINE__));
 			return 0;
 		}
 	}

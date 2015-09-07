@@ -3,10 +3,10 @@
 if (!defined("EVE_APP"))
 	exit();
 /**
- * A method that catch the different error that are sent by the system
+ * A method that catches the different errors sent by the system.
  * 
- * This method will only log the error in a file if we want to log the error. If not,
- * the error handler will just continue.
+ * This method will only log the errors in a file if we want to log errors.
+ * If not, the error handler will just continue.
  * 
  * @param unknown $errNo
  * 				ID of the error. Catch with the different constant.
@@ -17,8 +17,7 @@ if (!defined("EVE_APP"))
  * @param unknown $errLine
  * 				Error where the error has been detected
  * @return false
- * 				Say that we wan't the nativ error handler to
- *				continue checking the error 
+ * 				Say that we want the nativ error handler to continue checking the error 
  */
 function errorHandler($errNo, $errStr, $errFile, $errLine){
 	$config = \Library\Application::appConfig(); 
@@ -46,7 +45,7 @@ function errorHandler($errNo, $errStr, $errFile, $errLine){
 }
 
 /**
- * Say which method shoold catch the error
+ * Say which method should catch the error
  */
 set_error_handler('errorHandler');
 

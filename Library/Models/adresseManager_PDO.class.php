@@ -9,6 +9,9 @@ use Library\Models\AdresseManager;
 
 class adresseManager_PDO extends \Library\Manager_PDO implements adresseManager {
 	
+	const ERROR10010 = "Error 10010: Failed to update value.";
+	const ERROR10015 = "Error 10015: Failed to insert value.";
+	
 	public function getAdresseForUser($pId) {
 		$query = $this->dao->prepare('
 				SELECT
@@ -42,30 +45,6 @@ class adresseManager_PDO extends \Library\Manager_PDO implements adresseManager 
 		$query->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, '\Library\Entities\Adresse');
 		
 		return $query->fetchAll();
-	}
-	
-	public function get($pId) {
-		$query = $this->dao->prepare('
-				SELECT
-					id,
-					user_id,
-					entreprise,
-					adresse,
-					case_postale,
-					localite
-				FROM
-					adresses
-				WHERE
-					id = :id
-				');
-		
-		$query->bindValue(":id", $pId, \PDO::PARAM_INT);
-		
-		$query->execute();
-		
-		$query->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, '\Library\Entities\Adresse');
-		
-		return $query->fetch();
 	}
 	
 	public function allowedAdresse($userId, $adresseId) {
@@ -131,7 +110,7 @@ class adresseManager_PDO extends \Library\Manager_PDO implements adresseManager 
 			$pAdresse->setId($this->dao->lastInsertId());
 			return $pAdresse;
 		} else {
-			return null;
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR10015, __FILE__, __LINE__), \Library\Exception\PDOException::QUERY_FAIL);
 		}
 		
 	}
@@ -160,7 +139,7 @@ class adresseManager_PDO extends \Library\Manager_PDO implements adresseManager 
 		if ($query->execute()) {
 			return $pAdresse;
 		} else {
-			return null;
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR10010, __FILE__, __LINE__), \Library\Exception\PDOException::QUERY_FAIL);
 		}
 	}
 	

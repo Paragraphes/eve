@@ -9,6 +9,10 @@ use Library\Models\userManager;
 
 class userManager_PDO extends \Library\Manager_PDO implements userManager {
 	
+	const ERROR10300 = "Error 10300: There already exists a user with this login.";
+	const ERROR10390 = "Error 10390: The key must be a user.";
+	const ERROR10399 = "Error 10399: The ID must be a number.";
+	
 	public function getList(array $conditions = array(), array $param = array()) {
 		$list = parent::getList($conditions, $param);
 		
@@ -18,7 +22,7 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 	}
 	
 	public function get($pId) {
-		return parent::get($pId)->setAttr($this->getUserAttribute($pId));
+		return parent::get(func_get_args())->setAttr($this->getUserAttribute($pId));
 	}
 	
 	public function getListSubUser() {
@@ -31,7 +35,7 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 	
 	public function insert(\Library\Entity $pUser) {
 		if (!$pUser instanceof \Library\Entities\user)
-			return -3;
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR10390, __FILE__, __LINE__), \Library\Exception\PDOException::INVALID_KEY);
 		
 		$query = $this->dao->prepare("
 										SELECT
@@ -49,19 +53,12 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 		$info = $query->fetch(\PDO::FETCH_ASSOC);
 		
 		if ($info["nbr"] != 0) {
-			return -1;
+			throw new \Exception(\Library\Application::logger()->log("Error", "Model", self::ERROR10300, __FILE__, __LINE__));
 		}
 		
-		if ($ret = parent::insert($pUser)) {
-			foreach ($pUser->getListeParam() AS $key => $param)
-				$this->sendAttribute($pUser->id(), $key, $param);
-			
-			return 1;
-		} else {
-			return $ret;
-		}
-		
-		
+		$ret = parent::insert($pUser);
+		foreach ($pUser->getListeParam() AS $key => $param)
+			$this->sendAttribute($pUser->id(), $key, $param);
 	}
 	
 	public function update(\Library\Entity $pUser) {
@@ -83,7 +80,7 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 		
 		$info = $query->fetch(\PDO::FETCH_ASSOC);
 		
-		if ($info["nbr"] != 0) {
+		if ($info["nbr"] != 0) { //TODO: what does this correspond to?
 			return -1;
 		}
 		
@@ -113,6 +110,7 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 	}
 	
 	public function getUserFromGroup(array $listeGroup) {
+		//TODO: error handling
 		$sql = "SELECT login, email, civilite, prenom, nom FROM user u INNER JOIN user_in_groupe_struct gs ON gs.user_id = u.id WHERE gs.groupe_struct_id IN (" . implode(", ", array_map(function ($arg) {
 				if ($arg instanceof \Library\Entities\groupe_struct)
 					return $arg->id();
@@ -131,8 +129,8 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 	
 	public function isInGroup($pUserId, $pGroupeId) {
 		if (!(is_numeric($pUserId) && is_numeric($pGroupeId)))
-			return false;
-		
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR10399, __FILE__, __LINE__), \Library\Exception\PDOException::INVALID_ID);
+			
 		$query = $this->dao->prepare("SELECT
 										COUNT(*) AS nbr
 									FROM
@@ -155,8 +153,8 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 	
 	public function userHasGroupe($pUserId) {
 		if (!(is_numeric($pUserId)))
-			return false;
-		
+			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR10398, __FILE__, __LINE__), \Library\Exception\PDOException::INVALID_ID);
+			
 		$query = $this->dao->prepare("SELECT
 										COUNT(*) AS nbr
 									FROM

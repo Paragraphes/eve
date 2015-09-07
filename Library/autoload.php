@@ -2,14 +2,18 @@
 
 if (!defined("EVE_APP"))
 	exit();
+	
+define("ERROR100", "Error 100: Tried to access inaccessible class [%s].");
+define("ERROR101", "Error 101: Tried to access inaccessible class [%s].");
+
 /**
- * Function that has to automaticaly load the instanciated object that are not yet
+ * Function that has to automatically load the instanciated objects that are not yet
  * loaded.
- * The file has to be of the forme [className].class.php.
+ * The file has to be of the form [className].class.php.
  * The method will replace all the . given by the namespace by some \ that are used in file architecture.
- * The namespace need to give the link from root.
+ * The namespace needs to give the link starting from root.
  * 
- * If the class is in Settings, it could be given like if the data is in the root folder.
+ * If the class is in Settings, it can be given as if the data was in the root folder.
  * 
  * @param string $class
  * @throws \RuntimeException
@@ -25,11 +29,10 @@ function autoload($class){
 	} elseif (is_file("Settings/" . $src)) {
 		require("Settings/" . $src);
 	} else {
-		
-		if (\Library\Application::appConfig()->getConst("LOG"))
-			throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "autoload", "Try to access on unaccesible class [" . $class . "]", __FILE__, __LINE__));
+		if (\Library\Application::logger() instanceof \Library\Logger)
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "autoload", sprintf(ERROR100, $src), __FILE__, __LINE__));
 		else
-			throw new \RuntimeException("Try to access on unaccesible class [" . $class . "]");
+			throw new \RuntimeException(sprintf(ERROR101, $src));
 	}
 }
 spl_autoload_register('autoload');

@@ -1,0 +1,12 @@
+RewriteEngine On
+
+RewriteRule ^Library/ eve.php[QSA,L]
+RewriteRule ^Errors/ eve.php[QSA,L]
+RewriteRule ^Applications/ eve.php[QSA,L]
+RewriteRule ^Settings/ eve.php[QSA,L]
+RewriteRule ^Modules/ eve.php[QSA,L]
+RewriteRule ^Upload/ eve.php[QSA,L]
+RewriteRule ^Log/ eve.php[QSA,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ eve.php [QSA,L]

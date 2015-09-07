@@ -6,7 +6,10 @@ if (!defined("EVE_APP"))
 	exit();
 
 /**
- * Class that checks if an user is allowed to continue on the website or not. The class has to check if an user has been inactive for too long. This mesure is used to protect the user and avoid that someone else uses the current session. It also avoids that someone steals the session id since we check the session id and the IP.
+ * Class that checks if an user is allowed to continue on the website or not.
+ * The class has to check if an user has been inactive for too long.
+ * This mesure is used to protect the user and avoid that someone else uses the current session.
+ * It also avoids that someone steals the session id since we check the session id and the IP.
  * 
  * @copyright ParaGP Swizerland
  * @author Zellweger Vincent
@@ -16,7 +19,16 @@ if (!defined("EVE_APP"))
 abstract class GrantAccess {
 	
 	/**
-	 * A factory to create a specific GrantAcess function of the choosen DAO.
+	 * The given DAO is an empty string or non-string argument.
+	 */
+	const ERROR800 = "Error 800: DAO has to be a valid string.";
+	/**
+	 * No subclass of GrantAccess was found for the given DAO.
+	 */
+	const ERROR810 = "Error 810: Trying to use illegal DAO [%s].";
+	
+	/**
+	 * A factory to create a specific GrantAccess function of the choosen DAO.
 	 * 
 	 * It'll check if the DAO is valid and return a subclass instance of {@see \Library\GrantAccess}
 	 * 
@@ -30,21 +42,13 @@ abstract class GrantAccess {
 	 */
 	public static function grantAccess($dao, $route, $user) {
 		if (empty($dao) || !is_string($dao))
-			if (\Library\Application::appConfig()->getConst("LOG")) {
-				throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "FormError", "DAO has to be a valid string", __FILE__, __LINE__));
-			} else {
-				throw new \RuntimeException("DAO has to be a valid string");
-			}
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "AccessError", self::ERROR800, __FILE__, __LINE__));
 		
 		$className = "\\Library\\GrantAccess_" . $dao;
 		$class = new $className();
 		
 		if (!$class instanceof \Library\GrantAccess || is_null($class))
-			if (\Library\Application::appConfig()->getConst("LOG")) {
-				throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "FormError", "Try to use illegal DAO [" . $dao . "]", __FILE__, __LINE__));
-			} else {
-				throw new \RuntimeException("Try to use illegal DAO [" . $dao . "]");
-			}
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "AccessError", sprintf(self::ERROR810, $dao), __FILE__, __LINE__));
 		
 		return $class->checkAccess($route, $user);
 	}

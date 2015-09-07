@@ -15,6 +15,12 @@ if (!defined("EVE_APP"))
  * @version 1.0
  */
 class DAO_Factory{
+	
+	/**
+	 * No database was found corresponding to the desired connection type.
+	 */
+	const ERROR300 = "Error 300: Error on connection type.";
+	
 	/**
 	 * The factory itself.
 	 * It checks with a switch which DAO is needed and return the db connection corresponding to the DAO needed.
@@ -33,10 +39,7 @@ class DAO_Factory{
 				$db = PDOFactory::getMysqlConnexion();
 				break;
 			default:
-				if (\Library\Application::appConfig()->getConst("LOG"))
-					throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "Connection", "Error on connection type", __FILE__, __LINE__));
-				else
-					throw new \RuntimeException("Error on connection type");
+				throw new \RuntimeException(\Library\Application::logger()->log("Error", "DatabaseConnection", self::ERROR300, __FILE__, __LINE__));
 		}
 		return $db;
 	}

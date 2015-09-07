@@ -6,7 +6,9 @@ if (!defined("EVE_APP"))
 	exit();
 
 /**
- * Class that contains all the different informations that the client send to the server. It provides ways to recieve POST and GET data, the language of the user/browser, the position of the root, and the URI of the page
+ * Class that contains all the different informations that the client send to the server.
+ * It provides ways to recieve POST and GET data, the language of the user/browser,
+ * the position of the root, and the URI of the page.
  * 
  * 
  * It is a subclass of {@see \Library\ApplicationComponent}
@@ -161,14 +163,13 @@ class HTTPRequest extends ApplicationComponent{
 	
 	
 	/**
-	 * Returns the extended URI, which means all the URI without the language part
+	 * Returns the short URI, which means all the URI without the language part
 	 * 
 	 * @return string
 	 */
 	public function requestURI(){
 		
 		$uri = $this->extendUri();
-		
 		if(preg_match("/lang-([a-z]+)/", $uri, $match)){
 			
 			$this->lang = $match[1];

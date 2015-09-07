@@ -32,6 +32,10 @@ if (!defined("EVE_APP"))
  */
 
 class CheckboxField extends Field{
+	
+	const ERROR700 = "Error 700: The number of elements to display is different from the given value or amount of names.";
+	const ERROR710 = "Error 710: The number of columns must be greater than 0.";
+	
 	/**
 	 * Number of column
 	 * @var int
@@ -58,10 +62,7 @@ class CheckboxField extends Field{
 		$widget = '';
 		
 		if(count($this->textAffiche) != count($this->listName)){
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Form", "Le nombre d'élément à afficher est différent du nombre de valeur ou de celui du nombre de nom", __FILE__, __LINE__));
-			else
-				throw new \InvalidArgumentException("Le nombre d'élément à afficher est différent du nombre de valeur ou de celui du nombre de nom");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Form", self::ERROR700, __FILE__, __LINE__));
 			return 0;
 		}
 		
@@ -128,10 +129,7 @@ class CheckboxField extends Field{
 			$this->nbrCols = $int;
 			return 1;
 		}else{
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Form", "Le nombre de colone doit être plus grand que 0", __FILE__, __LINE__));
-			else
-				throw new \InvalidArgumentException("Le nombre de colone doit être plus grand que 0");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Form", self::ERROR710, __FILE__, __LINE__));
 			return 0;
 		}
 	}

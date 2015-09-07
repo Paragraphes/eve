@@ -7,16 +7,35 @@ if (!defined("EVE_APP"))
 
 /**
  * The parent of all controllers.
- * The controller are components of application. So they extend {@see \Library\ApplicationComponent}. The controller are the part of the application that use the data given by the model to give them to the view.
+ * The controller are components of application. So they extend {@see \Library\ApplicationComponent}.
+ * The controller are the part of the application that use the data given by the model to give them to the view.
  * 
  * @see \Library\ApplicationComponent
  * 
  * @copyright ParaGP Swizerland
  * @author Zellweger Vincent
+ * @author Toudoudou
  * @version 1.0
  * @abstract
  */
 abstract class BackController extends ApplicationComponent{
+	
+	/**
+	 * The controller is attempting to execute an action that doesn't exist in the current module.
+	 */
+	const ERROR200 = "Error 200: The action [%s] isn't defined in this module.";
+	/**
+	 * Tried to set the controller's action to an empty string or non-string argument.
+	 */
+	const ERROR210 = "Error 210: The action must be a valid string.";
+	/**
+	 * Tried to set the controller's view to an empty string or non-string argument.
+	 */
+	const ERROR220 = "Error 220: The view must be a valid string.";
+	/**
+	 * Tried to set the controller's module to an empty string or non-string argument.
+	 */
+	const ERROR230 = "Error 230: The module must be a valid string.";
 	
 	/**
 	 * The name of the action that we need to be performed.
@@ -97,9 +116,13 @@ abstract class BackController extends ApplicationComponent{
 	
 	/**
 	* Used to execute the action.
-	* There is two different possibilities for the execution of an action. First it could have his specific controller, so it checks if this controller exists or not. If a controller exists in /Modules/ModuleName/Controller/ActionController.class.php then this class is instanciated and the controller is loaded. This class has to extend {@see \Library\ActionController}
+	* There is two different possibilities for the execution of an action.
+	* First it could have his specific controller, so it checks if this controller exists or not.
+	* If a controller exists in /Modules/ModuleName/Controller/ActionController.class.php then
+	* this class is instanciated and the controller is loaded. This class has to extend {@see \Library\ActionController}
 	* 
-	* If the specific controller dosen't exist, then it should look if the current controller contains a method that correspond to this specific action
+	* If the specific controller doesn't exist, then it should look if the current controller
+	* contains a method that correspond to this specific action
 	* 
 	* - If yes, then use it and send it the {@see \Library\HTTPRequest} from the {@see \Library\Application}
 	* - If no, throw an exception
@@ -120,12 +143,7 @@ abstract class BackController extends ApplicationComponent{
 		$methode = 'execute' . ucfirst($this->action);
 		
 		if(!is_callable(array($this, $methode))){
-				if (\Library\Application::appConfig()->getConst("LOG")) {
-					throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "InvalidAction", "L'action " . $this->action . " n'est pas définie dans ce module", __FILE__, __LINE__));
-					
-				} else {
-					throw new \RuntimeException("L'action " . $this->action . " n'est pas définie dans ce module");
-				}
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Controller-InvalidAction", sprintf(self::ERROR200, $this->action), __FILE__, __LINE__));
 		}
 		
 		$this->$methode($this->app->httpRequest());
@@ -180,15 +198,12 @@ abstract class BackController extends ApplicationComponent{
 	 * Then it gives the view to the {@see \Library\PageGenerator::setContentFile()}
 	 * 
 	 * @param string $view
-	 * @throws \IllegalArgumentException
+	 * @throws \InvalidArgumentException
 	 * 				If the view is not valid
 	 */
 	public function setView($view, $module){
 		if(!is_string($view) || empty($view))
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \IllegalArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "InvalidView", "La vue doit être une chaine de caractère valide", __FILE__, __LINE__));
-			else
-				throw new \IllegalArgumentException("La vue doit être une chaine de caractère valide");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "InvalidView", self::ERROR220, __FILE__, __LINE__));
 		
 		$this->page->setContentFile(__DIR__ . '/../Modules/' . $module . '/Views/' . $view . '');
 		
@@ -202,15 +217,12 @@ abstract class BackController extends ApplicationComponent{
 	 * Then it saves the module
 	 * 
 	 * @param string $module
-	 * @throws \IllegalArgumentException
+	 * @throws \InvalidArgumentException
 	 * 				If the module is not valid
 	 */
 	public function setModule($module){
 		if(!is_string($module) || empty($module)){
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "InvalidModule", "Le module doit être une chaîne de caractère valide.", __FILE__, __LINE__));
-			else
-				throw new \InvalidArgumentException("Le module doit être une chaîne de caractère valide.");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "InvalidModule", self::ERROR230, __FILE__, __LINE__));
 		}
 		
 		$this->module = $module;
@@ -224,16 +236,12 @@ abstract class BackController extends ApplicationComponent{
 	 * Then it saves the action
 	 * 
 	 * @param string $action
-	 * @throws \IllegalArgumentException
+	 * @throws \InvalidArgumentException
 	 * 				If the action is not valid
 	 */
 	public function setAction($action){
 		if(!is_string($action) || empty($action)){
-			if (\Library\Application::appConfig()->getConst("LOG")) {
-				throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "InvalidAction", "L'action doit être une chaîne de caractère valide.", __FILE__, __LINE__));
-			} else {
-				throw new \InvalidArgumentException("L'action doit être une chaîne de caractère valide.");
-			}
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "InvalidAction", self::ERROR210, __FILE__, __LINE__));
 		}
 		
 		$this->action = $action;

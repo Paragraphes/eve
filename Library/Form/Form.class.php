@@ -6,15 +6,23 @@ if (!defined("EVE_APP"))
 	exit();
 
 /**
- * Class used to represent an HTML form. An HTML form is defined by it's method and it's action. It is also defined by the different fields that could be answered.
+ * Class used to represent an HTML form. An HTML form is defined by its method and its action.
+ * It is also defined by the different fields that could be answered.
  * 
  * This class automaticaly creates an hidden field that contains the checktime and both submit and reset button
  * 
  * @copyright ParaGP Swizerland
  * @author Zellweger Vincent
+ * @author Toudoudou
  * @version 1.0
  */
 class Form {
+	const ERROR720 = "Error 720: The name [%s] is already in use. No duplicates allowed.";
+	const ERROR730 = "Error 730: The method must be of type POST or GET.";
+	/**
+	 * Tried to set the form's action to an empty string or non-string argument.
+	 */
+	const ERROR740 = "Error 740: The action is not in a valid format.";
 	
 	/**
 	 * An instance of the {@see \Library\Entity} that is used to field the value of the different fields of the form
@@ -56,7 +64,9 @@ class Form {
 	}
 	
 	/**
-	 * Function that adds a field for this form. When adding the field, checks if the corresponding attribute of the class has an error, adds this error to show it when generating the field.
+	 * Function that adds a field for this form. When adding the field, 
+	 * checks if the corresponding attribute of the class has an error,
+	 * adds this error to show it when generating the field.
 	 * 
 	 * @see \Library\Form\Field
 	 * 
@@ -80,10 +90,7 @@ class Form {
 		
 		foreach ($this->fields AS $f)
 			if ($field->name() == $f->name())
-				if (\Library\Application::appConfig()->getConst("LOG"))
-					throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "Form", "The name " . $this->name() . " already used. No duplication allowed.", __FILE__, __LINE__), self::ERROR_SAME_NAME);
-				else
-					throw new \RuntimeException("The name " . $this->name() . " already used. No duplication allowed.", self::ERROR_SAME_NAME);
+				throw new \RuntimeException(\Library\Application::logger()->log("Error", "Form", sprintf(self::ERROR720, $this->name()), __FILE__, __LINE__), self::ERROR_SAME_NAME);
 		
 		$this->fields[] = $field;
 		
@@ -92,7 +99,8 @@ class Form {
 	
 	/**
 	 * Generates the HTML form.
-	 * Generates the HTML form using all the different informations that has been provided. If some informations are missing, it'll use some default one.
+	 * Generates the HTML form using all the different informations that has been provided.
+	 * If some informations are missing, it'll use some default one.
 	 * 
 	 * Those values are
 	 * 
@@ -152,10 +160,7 @@ class Form {
 				return $this;
 				break;
 			default:
-				if (\Library\Application::appConfig()->getConst("LOG"))
-					throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Form", "La méthode doit être de type POST ou GET", __FILE__, __LINE__));
-				else
-					throw new \InvalidArgumentException("La méthode doit être de type POST ou GET");
+				throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Form", self::ERROR730, __FILE__, __LINE__));
 		}
 	}
 	
@@ -170,10 +175,7 @@ class Form {
 	 */
 	public function setAction($pVal){
 		if(!is_string($pVal) || empty($pVal)){
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Form", "L'action n\'est pas dans un format valide.", __FILE__, __LINE__));
-			else
-				throw new \InvalidArgumentException("L'action n\'est pas dans un format valide.");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Form", self::ERROR740, __FILE__, __LINE__));
 		}
 		$this->action = \Utils::protect($pVal);
 		return $this;

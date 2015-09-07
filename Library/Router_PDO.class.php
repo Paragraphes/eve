@@ -8,7 +8,8 @@ if (!defined("EVE_APP"))
 /**
  * Specific router using PDO
  * 
- * This {@see \Library\Router} is used to get all the different {@see \Library\Route} from a DB using PDO. It has two functions. One to get all the different roads and one to get the default value of those roads.
+ * This {@see \Library\Router} is used to get all the different {@see \Library\Route} from a DB using PDO.
+ * It has two functions. One to get all the different roads and one to get the default value of those roads.
  *
  * @see \Library\Router
  *

@@ -51,29 +51,31 @@ class HTTPResponse extends ApplicationComponent{
 	 * 
 	 * It should be used to tell there is no page at the specific URL. It should also be used to hide a protected page.
 	 */
-	public function redirect404(){
-
+	public function redirect404($support = ""){
+		if ($support == "")
+			$support = $this->page->support();
+		
 		$this->page = new PageGenerator($this->app);
 		$this->page->setContentFile(__DIR__ . '/../Errors/404');
+		$this->page->setPageType($support);
+		$this->page->setError("404");
 		
 		$this->addHeader('HTTP/1.0 404 Not Found');
 		
 		$this->send();
-		
 	}
 	
 	/**
-	 * Function that redirects the user on a custom 404 page.
+	 * Function that redirects the user on a custom 301 page.
 	 * 
 	 * It should be used to tell there is no page at the specific URL. It should also be used to hide a protected page.
 	 */
 	public function redirect301($url = ""){
-		if ($url = "")
+		if ($url == "")
 			$url = $this->app()->httpRequest()->getRoot() . $this->app()->httpRequest()->extendUri() . '/';
 		
 		$this->addHeader('HTTP/1.1 301 Moved Permanently');
 		$this->addHeader("Location: " . $url);
-		
 	}
 	
 	/**
@@ -81,15 +83,18 @@ class HTTPResponse extends ApplicationComponent{
 	 * 
 	 * It should be used to tell the user he is not allowed to go on a specific URL.
 	 */
-	public function redirect403(){
+	public function redirect403($support = ""){
+		if ($support == "")
+			$support = $this->page->support();
 		
 		$this->page = new PageGenerator($this->app);
 		$this->page->setContentFile(__DIR__ . '/../Errors/403');
+		$this->page->setPageType($support);
+		$this->page->setError("403");
 		
 		$this->addHeader('HTTP/1.0 403 Forbidden');
 		
 		$this->send();
-		
 	}
 	
 	/**
@@ -98,7 +103,6 @@ class HTTPResponse extends ApplicationComponent{
 	 * This function has to stop the script, generate the page with all it specification and send it to the browser.
 	 */
 	public function send(){
-		
 		exit($this->page->generate());
 	}
 	

@@ -35,7 +35,10 @@ class Language {
 	/**
 	 * Returns the value of a key given a specific language.
 	 * 
-	 * Since the DAO is a subclass of {@see \Library\Manager}, it needs to use an instance of {@see \Library\Entity}, so we provide it and call the standard {@see \Library\Manager::get()} with specified language. If it give no value, then we try with the default language. Finaly, if the given key don't give any result, return null.
+	 * Since the DAO is a subclass of {@see \Library\Manager}, it needs to use an instance of {@see \Library\Entity},
+	 * so we provide it and call the standard {@see \Library\Manager::get()} with specified language.
+	 * If it give no value, then we try with the default language.
+	 * Finally, if the given key don't give any result, return null.
 	 * 
 	 * @param string $clef
 	 * @param string $lang

@@ -12,16 +12,22 @@ session_start();
  * 
  * This class is the standard way to use the persistant informations that are stocked in session.
  * 
- * This solution also gives some informations to know if a user is connected or not, his level of administration, his language informations and all the different stuff that is usefull for the application.
+ * This solution also gives some informations to know if a user is connected or not, his level of administration,
+ * his language informations and all the different stuff that is usefull for the application.
  *
  * @see \Library\ApplicationComponent
  *
  * @copyright ParaGP Swizerland
  * @author Zellweger Vincent
+ * @author Toudoudou
  * @version 1.0
  * @abstract
  */
 class User extends ApplicationComponent{
+	
+	const ERROR1210 = "Error 1210: Specified value for authentication must be a boolean.";
+	const ERROR1299 = "Error 1299: ID must be a numerical value.";
+	
 	/**
 	 * Language that a user has chosen by changing his settings
 	 * 
@@ -77,18 +83,13 @@ class User extends ApplicationComponent{
 	 * The admin lvl has to be a number greater than 0
 	 * 
 	 * @param int $pVal
-	 * @return number
 	 */
 	public function setAdmin($pVal){
-		
-		
 		if (is_int($pVal) && $pVal > 0) {
 			$_SESSION["admin"] = $pVal;
 		} else {
 			$_SESSION["admin"] = 0;
 		}
-		
-		return 1;
 	}
 	
 	/**
@@ -97,7 +98,6 @@ class User extends ApplicationComponent{
 	 * The admin lvl has to be a number greater than 0
 	 * 
 	 * @param int $pVal
-	 * @return number
 	 */
 	public function setPageLvl($pVal){
 		if (is_numeric($pVal) && $pVal > 0) {
@@ -105,14 +105,14 @@ class User extends ApplicationComponent{
 		} else {
 			$_SESSION["page_lvl"] = 0;
 		}
-		
-		return 1;
 	}
 	
 	
 	
 	/**
-	 * Returns whether a user is an admin or not or not. Being an admin means that his admin lvl is greater as the admin_lvl in the global config file or greater than the application config file.
+	 * Returns whether a user is an admin or not or not.
+	 * Being an admin means that his admin lvl is greater as the admin_lvl
+	 * in the global config file or greater than the application config file.
 	 * 
 	 * @return bool
 	 */
@@ -234,19 +234,14 @@ class User extends ApplicationComponent{
 	 * setter of the ID
 	 * 
 	 * @param int $pVal
-	 * @throws \IllegalArgumentException
+	 * @throws \InvalidArgumentException
 	 * 			If the ID is not valid, it means that the ID is not a number
-	 * @return number
 	 */
 	public function setId($pVal){
 		if(!is_numeric($pVal) || empty($pVal))
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \IllegalArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "User", "ID has to be numeric value", __FILE__, __LINE__));
-			else
-				throw new \IllegalArgumentException("ID has to be numeric value");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "User", self::ERROR1299, __FILE__, __LINE__));
 			
 		$_SESSION['user_id'] = $pVal;
-		return 1;
 	}
 	
 	/**
@@ -260,28 +255,15 @@ class User extends ApplicationComponent{
 	}
 	
 	/**
-	 * Method to remove an attribute given to a key
-	 * 
-	 * @param string $attr
-	 */
-	public function removeAttr($attr) {
-		if (key_exists($attr, $_SESSION["attr"]))
-			unset($_SESSION["attr"][$attr]);
-	}
-	
-	/**
 	 * Function that ensures a user is authenticated
 	 * 
 	 * @param string $authenticated
-	 * @throws \IllegalArgumentException
+	 * @throws \InvalidArgumentException
 	 * 			If the parameter is not valid
 	 */
 	public function setAuthenticated($authenticated = true){
 		if(!is_bool($authenticated))
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \IllegalArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "User", "Specified value for User::setAuthenticated has to be a boolean value", __FILE__, __LINE__));
-			else
-				throw new \IllegalArgumentException("Specified value for User::setAuthenticated has to be a boolean value");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "User", self::ERROR1210, __FILE__, __LINE__));
 		
 		$_SESSION['auth'] = $authenticated;
 	}
@@ -339,7 +321,7 @@ class User extends ApplicationComponent{
 	}
 	
 	/**
-	 * All the different informations that are used to unconnect a user
+	 * All the different informations that are used to disconnect a user
 	 * 
 	 * @return boolean
 	 */
@@ -353,7 +335,7 @@ class User extends ApplicationComponent{
 		$this->setPageLvl(-1);
 		
 		foreach ($_SESSION["connected_attr"] AS $atr)
-			$this->removeAttr($atr);
+			$this->unsetAttribute($atr);
 		
 		$_SESSION["connected_attr"] = array();
 		

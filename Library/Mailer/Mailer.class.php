@@ -12,9 +12,21 @@ if (!defined("EVE_APP"))
  * 
  * @copyright ParaGP Swizerland
  * @author Zellweger Vincent
+ * @author Toudoudou
  * @version 1.0
  */
 class Mailer extends \Library\ApplicationComponent {
+	
+	const ERROR1300 = "Error 1300: Sender [%s] could not be added.";
+	const ERROR1301 = "Error 1301: Receiver [%s] could not be added.";
+	const ERROR1305 = "Error 1305: Text is invalid.";
+	const ERROR1310 = "Error 1310: Could not find receiver [%s].";
+	const ERROR1320 = "Error 1320: The file [%s] does not exist.";
+	const ERROR1330 = "Error 1330: Could not add file value.";
+	const ERROR1331 = "Error 1331: Could not add file value.";
+	const ERROR1340 = "Error 1340: Missing element to send an email.";
+	const ERROR1345 = "Error 1345: Email failed to send.";
+	
 	/**
 	 * email of the sender
 	 * @var string
@@ -74,7 +86,6 @@ class Mailer extends \Library\ApplicationComponent {
 	public function defaultSender() {
 		if (!isset($defaultSender))
 			$this->defaultSender = $this->app->config()->get("DEFAULT_MAIL_SENDER");
-		
 		return $this->defaultSender;
 	}
 	
@@ -82,14 +93,13 @@ class Mailer extends \Library\ApplicationComponent {
 	 * Setter of the sender
 	 * 
 	 * @param string $pVal
-	 * @return number
 	 */
 	public function setSender($pVal) {
 		if (\Utils::testEmail($pVal)) {
 			$this->sender = $pVal;
-			return 1;
+		} else {
+			throw new \Library\Exception\MailerException(\Library\Application::logger()->log("Error", "Mailer", sprintf(self::ERROR1300, $pVal), __FILE__, __LINE__));
 		}
-		return 0;
 	}
 	
 	/**
@@ -109,14 +119,13 @@ class Mailer extends \Library\ApplicationComponent {
 	 * Adds a receiver on the list
 	 * 
 	 * @param string $pVal
-	 * @return number
 	 */
-	public function addReciever($pVal) {
+	public function addReceiver($pVal) {
 		if (\Utils::testEmail($pVal) && !in_array($pVal, $this->reciever)) {
 			$this->reciever[] = $pVal;
-			return 1;
+		} else {
+			throw new \Library\Exception\MailerException(\Library\Application::logger()->log("Error", "Mailer", sprintf(self::ERROR1301, $pVal), __FILE__, __LINE__));
 		}
-		return 0;
 	}
 	
 	/**
@@ -129,60 +138,55 @@ class Mailer extends \Library\ApplicationComponent {
 		$this->reciever = array();
 		if (is_array($pVal)) 
 			foreach ($pVal AS $val)
-				$this->addReciever($val);
+				$this->addReceiver($val);
 		else
-			$this->addReciever($pVal);
+			$this->addReceiver($pVal);
 	}
 	
 	/**
 	 * Checks if a receiver exists on the list and removes it
 	 * 
 	 * @param string $pVal
-	 * @return number
 	 */
 	public function removeReciever($pVal) {
 		if(($key = array_search($del_val, $messages)) !== false) {
 		    unset($messages[$key]);
-		    return 1;
+		} else {
+			throw new \Library\Exception\MailerException(\Library\Application::logger()->log("Error", "Mailer", sprintf(self::ERROR1310, $pVal), __FILE__, __LINE__));
 		}
-		return 0;
 	}
 	
 	/**
 	 * Removes all receivers
-	 * 
-	 * @return number
 	 */
 	public function initReciever() {
 		$this->reciever = array();
-		return 1;
 	}
 	
 	/**
 	 * Setter of the text
 	 * 
 	 * @param string $pVal
-	 * @return number
 	 */
 	public function setText($pVal) {
 		if (is_string($pVal) && !empty($pVal)) {
 			$this->text = ($pVal);
+		} else {
+			throw new \Library\Exception\MailerException(\Library\Application::logger()->log("Error", "Mailer", self::ERROR1305, __FILE__, __LINE__));
 		}
-		return 1;
 	}
 	
 	/**
 	 * Setter of the file
 	 * 
 	 * @param string $pVal
-	 * @return number
 	 */
 	public function setFile($pVal) {
 		if (file_exists($pVal)) {
 			$this->file = $pVal;
-			return 1;
+		} else {
+			throw new \Library\Exception\MailerException(\Library\Application::logger()->log("Error", "Mailer", sprintf(self::ERROR1320, $pVal), __FILE__, __LINE__));
 		}
-		return 0;
 	}
 	
 	/**
@@ -205,28 +209,26 @@ class Mailer extends \Library\ApplicationComponent {
 	 * 		Const on the file
 	 * @param string $pVal
 	 * 		Value of the constant
-	 * @return number
 	 */
 	public function addFileValue($pKey, $pVal) {
 		if (!array_key_exists($pKey, $this->fileValue)) {
 			$this->fileValue[$pKey] = $pVal;
-			return 1;
+		} else {
+			throw new \Library\Exception\MailerException(\Library\Application::logger()->log("Error", "Mailer", self::ERROR1330, __FILE__, __LINE__));
 		}
-		return 0;
 	}
 	
 	/**
 	 * Removes a file value that has been given a key
 	 * 
 	 * @param string $pKey
-	 * @return number
 	 */
 	public function removeFileValue($pKey) {
 		if (!array_key_exists($pKey, $this->fileValue)) {
 			unset($this->fileValue[$pKey]);
-			return 1;
+		} else {
+			throw new \Library\Exception\MailerException(\Library\Application::logger()->log("Error", "Mailer", self::ERROR1331, __FILE__, __LINE__));
 		}
-		return 0;
 	}
 	
 	/**
@@ -301,8 +303,6 @@ class Mailer extends \Library\ApplicationComponent {
 	 * 
 	 * @throws \RuntimeException
 	 * 			if the mail is not valid
-	 * 
-	 * @return boolean
 	 */
 	public function sendMail(){
 		
@@ -321,10 +321,7 @@ class Mailer extends \Library\ApplicationComponent {
 			
 			error_log($ret);
 			
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "Email", "Miss element to send an email" . $ret, __FILE__, __LINE__));
-			else
-				throw new \RuntimeException("Miss element to send an email");
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Mailer", self::ERROR1340 . $ret, __FILE__, __LINE__));
 		}
 		
 		$phpMail = new \Library\Utils\PHPMailer\PHPMailer();
@@ -359,13 +356,9 @@ class Mailer extends \Library\ApplicationComponent {
 		$phpMail->IsHTML(true);
 		
 		
-		if($phpMail->Send()){
-			return true;
-		}else{
-			return false;
+		if(!$phpMail->Send()){
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Mailer", self::ERROR1345, __FILE__, __LINE__));
 		}
-		
-		return true;
 	}
 }
 

@@ -12,7 +12,8 @@ if (!defined("EVE_APP"))
  * - rep : the repository attribute
  * - fileToLoad : the name of the file
  * 
- * It checks if the download folder is well based (it means that the root folder of the download is well the folder of download given in the application config file).
+ * It checks if the download folder is well based (it means that the root folder of the download
+ * is well the folder of download given in the application config file).
  * 
  * @see \Library\Page\Page
  * 
@@ -22,16 +23,15 @@ if (!defined("EVE_APP"))
  */
 class PageFile extends Page {
 	
+	const ERROR1060 = "Error 1060: You need a repository and a file to load data.";
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see \Library\Page\Page::generate()
 	 */
 	public function generate(){
 		if (!(key_exists("rep", $this->attribute) && key_exists("fileToLoad", $this->attribute)))
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \IllegalArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Form", "You need a repo and a file to load data.", __FILE__, __LINE__));
-			else
-				throw new \IllegalArgumentException("You need a repo and a file to load data.");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Page", self::ERROR1060, __FILE__, __LINE__));
 		
 		if (!file_exists($this->attribute["rep"] . $this->attribute["fileToLoad"]))
 			$this->app()->httpResponse()->redirect404();

@@ -16,9 +16,7 @@ class EveApplication extends \Library\Application{
 	
 	// Crée une application nommée PlatPub
 	public function __construct($root){
-		$this->name = 'Eve';
-		
-		parent::__construct($root);
+		parent::__construct($root, 'Eve');
 	}
 	
 	// Permet de faire fonctionner l'application

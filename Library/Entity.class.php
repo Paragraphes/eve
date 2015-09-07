@@ -15,10 +15,22 @@ if (!defined("EVE_APP"))
  * 
  * @copyright ParaGP Swizerland
  * @author Zellweger Vincent
+ * @author Toudoudou
  * @version 1.0
  * @abstract
  */
 abstract class Entity {
+	
+	/**
+	 * A method call could not be resolved as either a getter or setter by the __call function.
+	 */
+	const ERROR600 = "Error 600: Call to undefined method [%s::%s].";
+	/**
+	 * The __call function could not find the enum values for a given enum.
+	 */
+	const ERROR610 = "Error 610: No data allowed for the properties [%s] - Type %s.";
+	const ERROR620 = "Error 620: The parameter [%s] is not in the DB representation of the Entity.";
+	const ERROR625 = "Error 625: The property [%s] is not part of the Entity %s or the Entity is not in the DB representation.";
 	
 	/**
 	 * An instance of {@see \DateTime} used in form to check the difference of time
@@ -38,8 +50,6 @@ abstract class Entity {
 	 */
 	protected $errors = array();
 	
-	protected static $app;
-	
 	/**
 	 * Constructor of the Entities
 	 * When gived with an array of data, the constructor try to {@see \Library\Entitiy::hydrate()}
@@ -53,13 +63,13 @@ abstract class Entity {
 		}
 	}
 
-	public static function pushApplication(\Library\Application $pApp) {
+	/*public static function pushApplication(\Library\Application $pApp) {
 		self::$app = $pApp;
 	}
 	
 	public static function getApplication() {
 		return self::$app;
-	}
+	}*/
 	
 	/**
 	 * Indicate if an {@see \Library\Entity} is new or if it has be given by
@@ -220,15 +230,15 @@ abstract class Entity {
 	/**
 	 * This magic method is used to avoid the creation of all the getter and all the setter of the Entities
 	 * 
-	 * Instead of creating all the setter and getter, each time we try to set/get aa attribute, the
+	 * Instead of creating all the setter and getter, each time we try to set/get an attribute, the
 	 * application will get the DataTyper of the Entity, check if the provided attribute is in the DataType
 	 * and if yes if the different attribute are working.
 	 * 
-	 * In the case of the setter, the application will check if the attribute exist and if the different data provided in
-	 * the parameter match with the type of the attribute. Then it will set the value to the attribute.
+	 * In the case of the setter, the application will check if the attribute exists and if the different data provided in
+	 * the parameter matches with the type of the attribute. Then it will set the value to the attribute.
 	 * 
-	 * In the case of the getter, the application will check if the attribute exist and if the data already has a value. If
-	 * yes, then it return the value. If the attribute exist but it has no value, then the application will return a generic
+	 * In the case of the getter, the application will check if the attribute exists and if the data already has a value. If
+	 * yes, then it return the value. If the attribute exists but it has no value, then the application will return a generic
 	 * value (default value of the attribute in the DataType or generic default value).
 	 * 
 	 * @method int set[Attribute]($value) setter for the different attribute given the {@see \DataTyper_Manager} of the model
@@ -238,7 +248,7 @@ abstract class Entity {
 	 * @param mixed[] $pVal
 	 * 
 	 * @throws \RuntimeException
-	 * 				Throw an exception if the argument dosen't exist in the DataType or in the object.
+	 * 				Throw an exception if the argument doesn't exist in the DataType or in the object.
 	 * 				An other case of throwing such exception is when it is not a set neither a get.
 	 * 
 	 * @return number|mixed
@@ -256,11 +266,7 @@ abstract class Entity {
 		} elseif (substr($name, 0, 3) != "set" && (count($pVal) == 0 || (count($pVal) == 1 && isset($pVal["cst"])))) {
 			$varName = $name;
 		} else {
-			if (\Library\Application::appConfig()->getConst("LOG")) {
-				throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "Entity", "Call to undefined method " . get_class($this) . "::" . $name . "()", __FILE__, __LINE__));
-			} else {
-				throw new \RuntimeException("Call to undefined method " . get_class($this) . "::" . $name . "() in " . __FILE__ . " on line " . __LINE__);
-			}
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Entity", sprintf(self::ERROR600, get_class($this), $name), __FILE__, __LINE__));
 		}
 		
 		if (property_exists($this, $varName)) {
@@ -302,11 +308,7 @@ abstract class Entity {
 					if (count($listeData)) {
 						$default = $listeData[0];
 					} else {
-						if (\Library\Application::appConfig()->getConst("LOG")) {
-							throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "Entity", "No data allowed for the propreties " . $varName . " - Type " . $type, __FILE__, __LINE__));
-						} else {
-							throw new \RuntimeException("No data allowed for the propreties " . $varName . " - Type " . $type);
-						}
+						throw new \RuntimeException(\Library\Application::logger()->log("Error", "Entity", sprintf(self::ERROR610, $varName, $type), __FILE__, __LINE__));
 					}
 				
 				} else {
@@ -361,7 +363,7 @@ abstract class Entity {
 							} elseif (count($pVal) == 1)
 								if (is_string($pVal[0])) {
 									try {
-										$info = \Utils::getDateFormat(self::$app->user()->getLanguage());
+										$info = \Utils::getDateFormat(\Library\Application::getInstance()->user()->getLanguage());
 										
 										$this->$varName = \DateTime::createFromFormat($info[1], $pVal[0]);
 									} catch (\Exception $e) {
@@ -412,7 +414,7 @@ abstract class Entity {
 							if (defined($this->$varName)) 
 								return constant($this->$varName);
 							
-							if (($langVal = self::$app->language()->get($this->$varName, self::$app->httpRequest()->languageUser())) != null)
+							if (($langVal = \Library\Application::getInstance()->language()->get($this->$varName, \Library\Application::getInstance()->httpRequest()->languageUser())) != null)
 								return $langVal;
 							
 						}
@@ -422,20 +424,10 @@ abstract class Entity {
 					}
 				}
 			} else {
-				if (\Library\Application::appConfig()->getConst("LOG")) {
-					throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "Entity", "The parameters [" . $varName . "] is not in the BDD representation of the Entity", __FILE__, __LINE__));
-				} else {
-					throw new \RuntimeException("The parameters [" . $varName . "] is not in the BDD representation of the Entity");
-				}
+				throw new \RuntimeException(\Library\Application::logger()->log("Error", "Entity", sprintf(self::ERROR620, $varName), __FILE__, __LINE__));
 			}
-			
 		} else {
-			if (\Library\Application::appConfig()->getConst("LOG")) {
-				throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "Entity", "The properties " . $varName . " is not part of the Entity [" . get_class($this) . "] or the Entity is not in the BDD representation", __FILE__, __LINE__));
-			} else {
-				throw new \RuntimeException("The properties " . $varName . " is not part of the Entity [" . get_class($this) . "] or the Entity is not in the BDD representation");
-			}
-			
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Entity", sprintf(self::ERROR625, $varName, get_class($this)), __FILE__, __LINE__));
 		}
 	}
 }

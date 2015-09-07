@@ -16,13 +16,17 @@ if (!defined("EVE_APP"))
  */
 class GrantAccess_PDO extends GrantAccess {
 	
+	const ERROR820 = "Error 820: Disconnected while granting access.";
+	const ERROR821 = "Error 821: Disconnected while granting access.";
+	const ERROR830 = "Error 830: Access to road [%s] denied.";
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see \Library\GrantAccess::checkAccess()
 	 */
 	public function checkAccess($pRoute, $pUser) {
 		if (isset($_GET['deco']))
-			throw new \Library\Exception\AccessException("Unconnect", \Library\Exception\AccessException::DECONEXION);
+			throw new \Library\Exception\AccessException(\Library\Application::logger()->log("Error", "AccessError", self::ERROR820, __FILE__, __LINE__), \Library\Exception\AccessException::DECONEXION);
 		
 		$admin_lvl = 0;
 		
@@ -84,7 +88,7 @@ class GrantAccess_PDO extends GrantAccess {
 			$admin_lvl = $info["grant_access"];
 			
 			if ($admin_lvl == 0)
-				throw new \Library\Exception\AccessException("Not allowed to go on this road", \Library\Exception\AccessException::NOT_ALLOWED);
+				throw new \Library\Exception\AccessException(\Library\Application::logger()->log("Error", "AccessError", sprintf(self::ERROR830, $pRoute), __FILE__, __LINE__), \Library\Exception\AccessException::NOT_ALLOWED);
 			
 			if (($duration = \Library\Application::appConfig()->getConst("INTERVAL_DURATION")) == null)
 				$duration = 30;
@@ -116,7 +120,7 @@ class GrantAccess_PDO extends GrantAccess {
 			$infos = $requete->fetchAll(\PDO::FETCH_OBJ);
 			
 			if(count($infos) == 0)
-				throw new \Library\Exception\AccessException("Unconnect", \Library\Exception\AccessException::TIME_FINISHED);
+				throw new \Library\Exception\AccessException(\Library\Application::logger()->log("Error", "AccessError", self::ERROR821, __FILE__, __LINE__), \Library\Exception\AccessException::TIME_FINISHED);
 		
 			$requete = $dao->prepare("UPDATE connexion_log SET date_clk = NOW() WHERE id = :id;");
 			$requete->bindValue(':id', $infos[0]->id);

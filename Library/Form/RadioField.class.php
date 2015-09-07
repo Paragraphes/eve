@@ -32,6 +32,10 @@ if (!defined("EVE_APP"))
  * @version 1.0
  */
 class RadioField extends Field{
+	
+	const ERROR701 = "Error 701: The number of elements to display is different from the given value or amount of names.";
+	const ERROR711 = "Error 711: The number of columns must be greater than 0.";
+	
 	/**
 	 * The column number we want for this radio field
 	 * @var int
@@ -60,10 +64,7 @@ class RadioField extends Field{
 		$widget = '';
 		
 		if(count($this->textAffiche) != count($this->listVal)){
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \IllegalArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Form", "Le nombre d'élément à afficher est différent du nombre de valeur", __FILE__, __LINE__));
-			else
-				throw new \IllegalArgumentException("Le nombre d'élément à afficher est différent du nombre de valeur");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Form", self::ERROR701, __FILE__, __LINE__));
 			return 0;
 		}
 		
@@ -117,7 +118,7 @@ class RadioField extends Field{
 	 * Setter of the number of column
 	 * 
 	 * @param string $pVal
-	 * @throws \IllegalArgumentException
+	 * @throws \InvalidArgumentException
 	 * 			If the number of columns is not valid, meaning it's lower or equal to 0
 	 * 
 	 * @return number
@@ -130,10 +131,7 @@ class RadioField extends Field{
 			$this->nbrCols = $int;
 			return 1;
 		}else{
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \IllegalArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Form", "Le nombre de colone doit être plus grand que 0", __FILE__, __LINE__));
-			else
-				throw new \IllegalArgumentException("Le nombre de colone doit être plus grand que 0");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Form", self::ERROR711, __FILE__, __LINE__));
 			return 0;
 		}
 	}

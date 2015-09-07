@@ -33,7 +33,8 @@ abstract class ApplicationComponent{
 	}
 	
 	/**
-	 * Returns the instance of {@see \Library\Application} This instance contains references for {@see \Library\User}, {@see \Library\HTTPRequest}, {@see \Library\HTTPResponse}, {@see \Library\Config}, {@see \Library\Language} and {@see \Library\Mailer\Mailer}
+	 * Returns the instance of {@see \Library\Application} This instance contains references for {@see \Library\User}, 
+	 * {@see \Library\HTTPRequest}, {@see \Library\HTTPResponse}, {@see \Library\Config}, {@see \Library\Language} and {@see \Library\Mailer\Mailer}
 	 * 
 	 * @return Application
 	 */

@@ -13,6 +13,12 @@ if (!defined("EVE_APP"))
  * @version 1.0
  */
 class DataTyper{
+	
+	/**
+	 * The DataTyper's DAO was never set, meaning that {@see self::__construct()} was never called.
+	 */
+	const ERROR500 = "Error 500: Need to provide a DAO for DataTyper to work.";
+	
 	/**
 	 * An instance of the {@see \Library\DataTyper_Manager} that uses the DAO we want.
 	 * 
@@ -49,14 +55,11 @@ class DataTyper{
 	 * @return string[]
 	 *
 	 * @throws \RuntimeException
-	 * 			If the DAO has not be provided, that means that the {@see self::_constructor()} has never been called
+	 * 			If the DAO has not been provided, that means that the {@see self::_constructor()} has never been called
 	 */
 	public static function getDataType($module, $model) {
 		if (!isset(self::$typer))
-				if (\Library\Application::appConfig()->getConst("LOG"))
-					throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "DataTyper", "Need to provide a DAO on DataTyper to work", __FILE__, __LINE__), \Library\Exception\AccessException::DECONEXION);
-				else
-					throw new \RuntimeException("Need to provide a DAO on DataTyper to work");
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "DataTyper", self::ERROR500, __FILE__, __LINE__), \Library\Exception\AccessException::DECONEXION);
 		
 		return self::$typer->getDataType($module, $model);
 	}

@@ -8,13 +8,23 @@ if (!defined("EVE_APP"))
 /**
  * Class used for the form creation.
  * 
- * This class is a tool provided to create automaticaly a form using an XML file and an {@see \Library\Entity}. It will automatically create the different pieces of the form respecting the standards explained in the XML and fiel the field with the value in the {@see \Library}. It'll add a checkTime value to check the difference of time between when the form is created and when it is sent.
+ * This class is a tool provided to create automaticaly a form using an XML file and an {@see \Library\Entity}.
+ * It will automatically create the different pieces of the form respecting the standards explained in the XML
+ * and fill the field with the value in the {@see \Library}.
+ * It'll add a checkTime value to check the difference of time between when the form is created and when it is sent.
  * 
  * @copyright ParaGP Swizerland
  * @author Zellweger Vincent
  * @version 1.0
  */
 class FormBuilder {
+	
+	const ERROR760 = "Error 760: The XML could not be parsed.";
+	/**
+	 * Could not find the desired XML file.
+	 */
+	const ERROR770 = "Error 770: The file path is invalid.";
+	
 	/**
 	 * The representaion of the form.
 	 * This value contains all the information about the form and its different field.
@@ -46,7 +56,8 @@ class FormBuilder {
 	
 	/**
 	 * Function that build the form.
-	 * Using the specified XML, the function will parse the XML to generate a new HTML form. For each of the form_elem in the xml, we try to add a new {@see \Library\Form\Field} in the {@see \Library\Form\Form} and build the HTML form fot that.
+	 * Using the specified XML, the function will parse the XML to generate a new HTML form. For each of the form_elem in the xml,
+	 * we try to add a new {@see \Library\Form\Field} in the {@see \Library\Form\Form} and build the HTML form for that.
 	 * The type of the form will automatically be put as POST.
 	 * The XML has to be formed like that
 	 * 
@@ -82,11 +93,7 @@ class FormBuilder {
 		if(file_exists($pXml) && is_file($pXml)){
 			$xml = new \DOMDocument();
 			if ($xml->load($pXml) === false)
-				if (\Library\Application::appConfig()->getConst("LOG"))
-					throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "FormError", "The XML is not well parsed", __FILE__, __LINE__));
-				else
-					throw new \InvalidArgumentException("The XML is not well parsed");
-				
+				throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Form", self::ERROR760, __FILE__, __LINE__));
 			
 			$elements = $xml->getElementsByTagName('form_elem');
 			
@@ -104,15 +111,11 @@ class FormBuilder {
 				
 				$entity = $this->form->entity();
 				
-				$this->form->add(new $objName($listeInfo, $entity::getApplication()));
+				$this->form->add(new $objName($listeInfo, \Library\Application::getInstance()));
 			}
 			return $this->form->createView();
 		}else{
-			if (\Library\Application::appConfig()->getConst("LOG")) {
-				throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "FormError", "Le fichier doit être un fichier valide!", __FILE__, __LINE__));
-			} else {
-				throw new \InvalidArgumentException("Le fichier doit être un fichier valide!");
-			}
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Form", self::ERROR770, __FILE__, __LINE__));
 		}
 		
 	}

@@ -11,10 +11,20 @@ if (!defined("EVE_APP"))
  * 
  * @copyright ParaGP Swizerland
  * @author Zellweger Vincent
+ * @author Toudoudou
  * @version 1.0
  * @abstract
  */
 abstract class Application{
+	
+	/**
+	 * The current controller is not a subclass of BackController.
+	 */
+	const ERROR400 = "Error 400: Controller not valid [%s].";
+	/**
+	 * The current controller is not a subclass of BackController.
+	 */
+	const ERROR401 = "Error 401: Controller not valid.";
 	
 	/**
 	* Object client request that contains all the data from the client
@@ -83,15 +93,19 @@ abstract class Application{
 	protected static $logger;
 	
 	/**
-	 * Constructor of the application. The subclass needs to call it in order to give a name to the app.
+	 * Instance of the current application, since there can only be one.
+	 * @var \Library\Application
+	 */
+	protected static $app;
+	
+	/**
+	 * Constructor of the application.
 	 * 
 	 * @param string $root
 	 * 				The root of the application. Used to know the position in the file tree.
 	 */
-	public function __construct($root) {
-		
-		if (!isset($this->name))
-			throw new \RuntimeException("The application should have a name");
+	public function __construct($root, $name) {
+		$this->name = $name;
 		
 		$configRoot = "\\Applications\\" . $this->name . "\\Config\\Config";
 		self::$appConfig = new $configRoot();
@@ -105,7 +119,8 @@ abstract class Application{
 		
 		$this->user = new User($this);
 		
-		\Library\Entity::pushApplication($this);
+		self::$app = $this;
+		//\Library\Entity::pushApplication($this);
 	}
 	
 	/**
@@ -122,7 +137,8 @@ abstract class Application{
 	 * - If a road matches, the user is not connected and the road needs a connection, use the connexionController
 	 * - Get all the different variables from the URI and add them to $_GET
 	 * - Generate the current controller
-	 * - If the controller is not well formated, it means that the controller is not a subclass of BackController and we're not able to ensure that the Controller will work.
+	 * - If the controller is not well formated, it means that the controller is not
+	 *   a subclass of BackController and we're not able to ensure that the Controller will work.
 	 * - Create {@see \Library\Config} and {@see \Library\Language}
 	 * - Return a working controler
 	 * 
@@ -141,10 +157,11 @@ abstract class Application{
 	 * @return \Library\BackController the controler of the application
 	 */
 	public function getController(){
-		if(is_file(__DIR__ . '/../Applications/' . $this->name() . '/Lang/base.' . $this->user()->getLanguage() . '.php')){
-			require(__DIR__ . '/../Applications/' . $this->name() . '/Lang/base.' . $this->user()->getLanguage() . '.php');
+		$rootLang = __DIR__ . '/../Applications/' . $this->name() . '/Lang/base.';
+		if(is_file($rootLang . $this->user()->getLanguage() . '.php')){
+			require($rootLang . $this->user()->getLanguage() . '.php');
 		}else{
-			require(__DIR__ . '/../Applications/' . $this->name() . '/Lang/base.' . \Utils::defaultLanguage() . '.php');
+			require($rootLang . \Utils::defaultLanguage() . '.php');
 		}
 		
 		/**
@@ -159,7 +176,7 @@ abstract class Application{
 		try{
 		
 			if ($this->httpRequest->existGet("deco")) {
-				throw new \Library\Exception\AccessException("Unconnect", \Library\Exception\AccessException::DECONEXION);
+				throw new \Library\Exception\AccessException("Disconnect", \Library\Exception\AccessException::DECONEXION);
 			}
 			
 			$router = \Library\Router::getRouter(self::$appConfig->getConst("DAO"));
@@ -179,8 +196,17 @@ abstract class Application{
 			 */
 			
 			if ($matchedRoute->needConnection() && !$this->user->isAuthenticated()) {
-				$class = "Modules\\Connexion\\ConnexionController";
-				$controller = new $class($this, 'Connexion', 'index');
+				//TODO: decide on action for xml and json
+				switch ($matchedRoute->type()) {
+					case "xml":
+					case "json":
+						$this->httpResponse()->redirect403($matchedRoute->type());
+						break;
+					case "html":
+					default:
+						$class = "Modules\\Connexion\\ConnexionController";
+						$controller = new $class($this, 'Connexion', 'index');
+				}
 			} else {
 				$vars = $matchedRoute->varsListe();
 				
@@ -201,30 +227,22 @@ abstract class Application{
 		}catch(\Library\Exception\AccessException $e){
 			switch ($e->getCode()) {
 				case \Library\Exception\AccessException::DECONEXION :
-					if (\Library\Application::appConfig()->getConst("LOG")) {
-						\Library\Application::logger()->log("Connection", "Unconnect", "Unconnection", __FILE__, __LINE__, false);
-					}
+					self::logger()->log("Connection", "Disconnect", "Disconnection", __FILE__, __LINE__, false);
 					$_SESSION['flash'] = 'UNCONNECT_CONNECTION';
 					break;
 				case \Library\Exception\AccessException::TIME_FINISHED :
-					if (\Library\Application::appConfig()->getConst("LOG")) {
-						\Library\Application::logger()->log("Connection", "time_finished", "Too much time between action", __FILE__, __LINE__, false);
-					}
+					self::logger()->log("Connection", "Timeout", "Too much time between actions", __FILE__, __LINE__, false);
 					$_SESSION['flash'] = 'TIME_CONNECTION';
 					break;
 				case \Library\Exception\AccessException::NO_ROAD :
-					if (\Library\Application::appConfig()->getConst("LOG")) {
-							if (!preg_match('#^/Web/#',$this->httpRequest->requestURI()))
-								\Library\Application::logger()->log("Error", "NoRoad", "Try to access not existing road [" . $this->httpRequest->requestURI() . "]", __FILE__, __LINE__);
-							else
-								\Library\Application::logger()->log("Error", "MissRess", "Try to get missing ressource [" . $this->httpRequest->requestURI() . "]", __FILE__, __LINE__);
-					}
+					if (!preg_match('#^/Web/#',$this->httpRequest->requestURI()))
+						self::logger()->log("Connection", "NoRoad", "Tried to access non-existant route [" . $this->httpRequest->requestURI() . "]", __FILE__, __LINE__);
+					else
+						self::logger()->log("Connection", "MissRes", "Tried to access missing resource [" . $this->httpRequest->requestURI() . "]", __FILE__, __LINE__);
 					$this->httpResponse->redirect404();
 				case \Library\Exception\AccessException::NOT_ALLOWED :
-					if (\Library\Application::appConfig()->getConst("LOG")) {
-						\Library\Application::logger()->log("Connection", "not_allowed", "Try to access on not allowed road [" . $this->httpRequest()->requestURL() . "]", __FILE__, __LINE__, false);
-					}
-					$this->httpResponse()->redirect403();
+					self::logger()->log("Connection", "Forbidden", "Tried to access forbidden route [" . $this->httpRequest()->requestURL() . "]", __FILE__, __LINE__, false);
+					$this->httpResponse->redirect403();
 					break;
 				case \Library\Exception\AccessException::MOVED_PERMANENTLY:
 					$this->httpResponse->redirect301();
@@ -238,13 +256,14 @@ abstract class Application{
 		}
 		
 		if (! $controller instanceof BackController) {
+			//TODO: check w vincent
 				if (\Library\Application::appConfig()->getConst("LOG")) {
 					ob_start();
 					var_dump($controller);
 					$ret = ob_get_clean();
-					throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "InvalidControler", "Controler not valid [" . $ret . "]", __FILE__, __LINE__), \Library\Exception\AccessException::DECONEXION);
+					throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "InvalidController", sprintf(self::ERROR400, $ret), __FILE__, __LINE__), \Library\Exception\AccessException::DECONEXION);
 				} else
-					throw new \RuntimeException("Erreur, le contrôleur n'est pas valide");
+					throw new \RuntimeException(self::ERROR401);
 			
 		}
 		
@@ -364,6 +383,14 @@ abstract class Application{
 	 */
 	public static function logger() {
 		return self::$logger;
+	}
+	
+	/**
+	 * Returns the current instance of the application.
+	 * @return \Library\Application
+	 */
+	public static function getInstance() {
+		return self::$app;
 	}
 }
 

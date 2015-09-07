@@ -12,9 +12,14 @@ if (!defined("EVE_APP"))
  * 
  * @copyright ParaGP Swizerland
  * @author Zellweger Vincent
+ * @author Toudoudou
  * @version 1.0
  */
 class Managers{
+	
+	const ERROR920 = "Error 920: The given model [%s] is invalid.";
+	const ERROR921 = "Error 921: The given model [%s] is invalid.";
+	const ERROR930 = "Error 930: Trying to get undefined DAO API [%s].";
 	
 	/**
 	 * The name of the api wanted in this Managers
@@ -59,7 +64,9 @@ class Managers{
 	 * Function that gives back a {@see \Library\Manager}
 	 * Given the model, this function will create a Manager for this model respecting the API of the {@see \Library\Managers}
 	 * 
-	 * Given a specific model, the {@see \Library\Managers} will check whether a model with the same name has already be created or not. If no, then it creates a new manager with all the different informations needed. Then it adds it in the {@see \Library\Manager} list and return the element of the list that correspond.
+	 * Given a specific model, the {@see \Library\Managers} will check whether a model with the same name has already be created or not.
+	 * If not, then it creates a new manager with all the different informations needed.
+	 * Then it adds it in the {@see \Library\Manager} list and return the element of the list that correspond.
 	 * 
 	 * @param string $model
 	 * 			The module to load
@@ -72,10 +79,7 @@ class Managers{
 	public function getManagersOf($model){
 		
 		if(!is_string($model) || empty($model))
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Manager_PDO", "Le model spécifié est invalide", __FILE__, __LINE__));
-			else
-				throw new \InvalidArgumentException("Le model spécifié est invalide");
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Manager", sprintf(self::ERROR920, $model), __FILE__, __LINE__));
 		
 		if(!isset($this->managers[$model])){
 			if (file_exists("./Modules/" . $this->module . "/Models/" . $model . "Manager.class.php")) {
@@ -85,10 +89,7 @@ class Managers{
 				$manager = "\\Library\\Models\\";
 				$module = null;
 			} else {
-				if (\Library\Application::appConfig()->getConst("LOG"))
-					throw new \InvalidArgumentException("Error ID: " . \Library\Application::logger()->log("Error", "Manager_PDO", "Le model spécifié est invalide", __FILE__, __LINE__));
-				else
-					throw new \InvalidArgumentException("Le model spécifié est invalide");
+				throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Manager", sprintf(self::ERROR921, $model), __FILE__, __LINE__));
 			}
 			
 			$manager .= $model . 'Manager_' . $this->api;
@@ -114,10 +115,7 @@ class Managers{
 	public static function getDao($api) {
 		
 		if (!key_exists($api, self::$dao))
-			if (\Library\Application::appConfig()->getConst("LOG"))
-				throw new \RuntimeException("Error ID: " . \Library\Application::logger()->log("Error", "Manager_PDO", "Try to get undefined DAO API: [" . $api . "]", __FILE__, __LINE__));
-			else
-				throw new \RuntimeException("Try to get undefined DAO API: [" . $api . "]");
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Manager", sprintf(self::ERROR930, $api), __FILE__, __LINE__));
 		
 		return self::$dao[$api];
 	}
