@@ -19,6 +19,8 @@ class PDOFactory implements DAO_Interface {
 	 */
 	const ERROR310 = "Error 310: Error on DB connection.";
 	
+	private $instance = null;
+	
 	/**
 	 * Static method that gives a new connection on the DB using the PDO API.
 	 * It checks where the user is (local or on the Internet) to choose the right login.
@@ -28,31 +30,32 @@ class PDOFactory implements DAO_Interface {
 	 * @return \PDO
 	 */
 	public static function getConnexion() {
-		try{
-			
-			$db = new \PDO('mysql:host=' . \Library\Application::appConfig()->getConst("BDD_HOST")
-							. ';dbname=' . \Library\Application::appConfig()->getConst("BDD_NAME"). ''
-							, \Library\Application::appConfig()->getConst("BDD_USER")
-							, \Library\Application::appConfig()->getConst("BDD_PASSWORD"));
-			
-			$db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-		} catch(\Exception $e) {
-			throw new \RuntimeException(\Library\Application::logger()->log("Error", "DatabaseConnection", self::ERROR310, __FILE__, __LINE__));
-			exit();
+		if ($instance == null) {
+			try{
+				$instance = new \PDO('mysql:host=' . \Library\Application::appConfig()->getConst("BDD_HOST")
+								. ';dbname=' . \Library\Application::appConfig()->getConst("BDD_NAME"). ''
+								, \Library\Application::appConfig()->getConst("BDD_USER")
+								, \Library\Application::appConfig()->getConst("BDD_PASSWORD"));
+				
+				$instance->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+			} catch(\Exception $e) {
+				throw new \RuntimeException(\Library\Application::logger()->log("Error", "DatabaseConnection", self::ERROR310, __FILE__, __LINE__));
+				exit();
+			}
 		}
-		return $db;
+		return $instance;
 	}
 	
 	public static function beginTransaction() {
-		
-	}
-	
-	public static function endTransaction() {
-		
+		$instance->beginTransaction();
 	}
 	
 	public static function commitTransaction() {
-		
+		$instance->commit();
+	}
+	
+	public static function rollBack() {
+		$instance->rollBack();
 	}
 }
 

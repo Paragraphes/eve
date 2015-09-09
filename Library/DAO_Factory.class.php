@@ -21,8 +21,8 @@ class DAO_Factory {
 	 */
 	const ERROR300 = "Error 300: Could not obtain connection for given type.";
 	const ERROR301 = "Error 301: Could not begin transaction for given type.";
-	const ERROR302 = "Error 302: Could not end transaction for given type.";
-	const ERROR303 = "Error 303: Could not commit transaction for given type.";
+	const ERROR302 = "Error 302: Could not commit transaction for given type.";
+	const ERROR303 = "Error 303: Could not roll back transaction for given type.";
 	
 	/**
 	 * The factory itself.
@@ -55,20 +55,20 @@ class DAO_Factory {
 			throw new \RuntimeException(\Library\Application::logger()->log("Error", "DatabaseConnection", self::ERROR301, __FILE__, __LINE__));
 	}
 	
-	public static function endTransaction($type) {
-		$cname = "\\Library\\" . $type . "Factory";
-		
-		if (class_exists($cname))
-			return $cname::endTransaction();
-		else
-			throw new \RuntimeException(\Library\Application::logger()->log("Error", "DatabaseConnection", self::ERROR302, __FILE__, __LINE__));
-	}
-	
 	public static function commitTransaction($type) {
 		$cname = "\\Library\\" . $type . "Factory";
 		
 		if (class_exists($cname))
 			return $cname::commitTransaction();
+		else
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "DatabaseConnection", self::ERROR302, __FILE__, __LINE__));
+	}
+	
+	public static function rollBack($type) {
+		$cname = "\\Library\\" . $type . "Factory";
+		
+		if(class_exists($cname))
+			return $cname::rollBack();
 		else
 			throw new \RuntimeException(\Library\Application::logger()->log("Error", "DatabaseConnection", self::ERROR303, __FILE__, __LINE__));
 	}
