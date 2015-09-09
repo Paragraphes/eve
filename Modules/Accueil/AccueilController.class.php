@@ -32,7 +32,7 @@ class AccueilController extends \Library\BackController {
 		//$this->page()->addVar("custom", $test4);
 		$this->page()->addVar("val", $test5);
 		
-		$this->page()->setIsXml();
+		$this->page()->setIsJson();
 	}
 }
 

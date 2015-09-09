@@ -20,6 +20,9 @@ class Managers{
 	const ERROR920 = "Error 920: The given model [%s] is invalid.";
 	const ERROR921 = "Error 921: The given model [%s] is invalid.";
 	const ERROR930 = "Error 930: Trying to get undefined DAO API [%s].";
+	const ERROR940 = "Error 940: ";
+	const ERROR941 = "Error 941: ";
+	const ERROR942 = "Error 942: ";
 	
 	/**
 	 * The name of the api wanted in this Managers
@@ -120,6 +123,36 @@ class Managers{
 		return self::$dao[$api];
 	}
 	
+	
+	public static function beginTransaction($type = null) {
+		if ($type == null)
+			$type = $this->api;
+		
+		if(!in_array($type, self::$dao))
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Manager", self::ERROR940, __FILE__, __LINE__));
+			
+		DAO_Factory::beginTransaction($type);
+	}
+	
+	public static function endTransaction($type = null) {
+		if ($type == null)
+			$type = $this->api;
+	
+		if(!in_array($type, self::$dao))
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Manager", self::ERROR941, __FILE__, __LINE__));
+			
+		DAO_Factory::beginTransaction($type);
+	}
+	
+	public static function commitTransaction($type = null) {
+		if ($type == null)
+			$type = $this->api;
+	
+		if(!in_array($type, self::$dao))
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Manager", self::ERROR942, __FILE__, __LINE__));
+			
+		DAO_Factory::beginTransaction($type);
+	}
 }
 
 ?>

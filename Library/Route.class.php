@@ -149,7 +149,6 @@ class Route{
 			$this->action = $action;
 		}
 	}
-	//TODO: parameter checks?
 	
 	/**
 	 * Setter of the ID

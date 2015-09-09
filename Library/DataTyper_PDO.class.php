@@ -29,7 +29,7 @@ class DataTyper_PDO extends DataTyper_Manager {
 	 */
 	public function getDataType($module, $model) {
 		if (!(key_exists($module, $this->listType) && key_exists($model, $this->listType[$module]))) {
-			$dao = PDOFactory::getMysqlConnexion();
+			$dao = PDOFactory::getConnexion(); //TODO: use manager?
 			
 			$tableName = ($module != null) ? strtolower($module) . "_" . $model : $model;
 			

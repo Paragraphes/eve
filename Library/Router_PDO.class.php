@@ -23,7 +23,8 @@ class Router_PDO extends Router {
 	 * @see \Library\Router::setRoutes()
 	 */
 	public function setRoutes(){
-		$dao = PDOFactory::getMysqlConnexion();
+		//TODO: pass by manager?
+		$dao = PDOFactory::getConnexion();
 		
 		$requete = $dao->prepare('SELECT id, url, module, action, vars, admin_lvl FROM routes;');
 		$requete->execute();
@@ -43,7 +44,8 @@ class Router_PDO extends Router {
 	 * @see \Library\Router::addDefaultVal()
 	 */
 	public function addDefaultVal(Route $pRoute) {
-		$dao = PDOFactory::getMysqlConnexion();
+		//TODO: pass by manager?
+		$dao = PDOFactory::getConnexion();
 		
 		$requete = $dao->prepare('SELECT `route_key`, `route_val`, `force_val` FROM routes_def_val WHERE route_id = :pId;');
 		

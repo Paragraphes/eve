@@ -12,12 +12,12 @@ if (!defined("EVE_APP"))
  * @author Zellweger Vincent
  * @version 1.0
  */
-class PDOFactory{
+class PDOFactory implements DAO_Interface {
 	
 	/**
 	 * An error happened while trying to connect to the database.
 	 */
-	const ERROR305 = "Error 305: Error on DB connection.";
+	const ERROR310 = "Error 310: Error on DB connection.";
 	
 	/**
 	 * Static method that gives a new connection on the DB using the PDO API.
@@ -27,7 +27,7 @@ class PDOFactory{
 	 * 			If the current information doesn't allow the BDD connection
 	 * @return \PDO
 	 */
-	public static function getMysqlConnexion(){
+	public static function getConnexion() {
 		try{
 			
 			$db = new \PDO('mysql:host=' . \Library\Application::appConfig()->getConst("BDD_HOST")
@@ -37,10 +37,22 @@ class PDOFactory{
 			
 			$db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 		} catch(\Exception $e) {
-			throw new \RuntimeException(\Library\Application::logger()->log("Error", "DatabaseConnection", self::ERROR305, __FILE__, __LINE__));
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "DatabaseConnection", self::ERROR310, __FILE__, __LINE__));
 			exit();
 		}
 		return $db;
+	}
+	
+	public static function beginTransaction() {
+		
+	}
+	
+	public static function endTransaction() {
+		
+	}
+	
+	public static function commitTransaction() {
+		
 	}
 }
 
