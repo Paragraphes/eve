@@ -19,11 +19,23 @@ class Mailer extends \Library\ApplicationComponent {
 	
 	const ERROR1300 = "Error 1300: Sender [%s] could not be added.";
 	const ERROR1301 = "Error 1301: Receiver [%s] could not be added.";
+	/**
+	 * The given text is an empty string or non-string argument.
+	 */
 	const ERROR1305 = "Error 1305: Text is invalid.";
+	/**
+	 * Tried to remove a receiver that wasn't there.
+	 */
 	const ERROR1310 = "Error 1310: Could not find receiver [%s].";
 	const ERROR1320 = "Error 1320: The file [%s] does not exist.";
+	/**
+	 * Could not find the key corresponding to the given file value.
+	 */
 	const ERROR1330 = "Error 1330: Could not add file value.";
-	const ERROR1331 = "Error 1331: Could not add file value.";
+	/**
+	 * Could not find the key corresponding to the given file value.
+	 */
+	const ERROR1331 = "Error 1331: Could not remove file value.";
 	const ERROR1340 = "Error 1340: Missing element to send an email.";
 	const ERROR1345 = "Error 1345: Email failed to send.";
 	

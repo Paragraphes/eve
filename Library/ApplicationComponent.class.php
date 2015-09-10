@@ -15,7 +15,7 @@ if (!defined("EVE_APP"))
  * @version 1.0
  * @abstract
  */
-abstract class ApplicationComponent{
+abstract class ApplicationComponent {
 	
 	/**
 	 * An instance of the application

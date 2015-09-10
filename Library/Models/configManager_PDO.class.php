@@ -7,12 +7,33 @@ if (!defined("EVE_APP"))
 
 class configManager_PDO extends \Library\Manager_PDO implements configManager {
 	
+	/**
+	 * No entity was found for the given key while null returns were forbidden.
+	 */
 	const ERROR10100 = "Error 10100: Entity could not be found.";
+	/**
+	 * The update method is not defined for this subclass of Manager_PDO.
+	 */
 	const ERROR10150 = "Error 10150: Cannot update entity.";
+	/**
+	 * The insert method is not defined for this subclass of Manager_PDO.
+	 */
 	const ERROR10155 = "Error 10155: Cannot insert entity.";
+	/**
+	 * The send method is not defined for this subclass of Manager_PDO.
+	 */
 	const ERROR10160 = "Error 10160: Cannot send entity.";
+	/**
+	 * The delete method is not defined for this subclass of Manager_PDO.
+	 */
 	const ERROR10165 = "Error 10165: Cannot delete entity.";
+	/**
+	 * The deleteList method is not defined for this subclass of Manager_PDO.
+	 */
 	const ERROR10166 = "Error 10166: Cannot delete entities.";
+	/**
+	 * The given key was not an instance or subclass of {@see \Library\Entity}.
+	 */
 	const ERROR10190 = "Error 10190: The key must be an entity.";
 	
 	public function get($clef){

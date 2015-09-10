@@ -24,7 +24,7 @@ if (!defined("EVE_APP"))
  * @author Zellweger Vincent
  * @version 1.0
  */
-class StringField extends Field{
+class StringField extends Field {
 	
 	const ERROR716 = "Error 716: The maximum length must be greater than 0.";
 	

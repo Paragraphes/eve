@@ -25,13 +25,30 @@ if (!defined("EVE_APP"))
  * 
  * @copyright ParaGP Swizerland
  * @author Zellweger Vincent
+ * @author Toudoudou
  * @version 1.0
  */
 class PageJson extends Page {
 	
+	/**
+	 * The maximum depth we want to allow.
+	 * @var int
+	 */
 	const MAX_DEPTH = 20;
 	
+	/**
+	 * The validity bit.
+	 * Set to 0 if any error occured;
+	 * Set to 1 if the json was generated correctly.
+	 * 
+	 * @var int
+	 */
 	protected $valid = 1;
+	
+	/**
+	 * Contains any errors that occured during generation.
+	 * @var array
+	 */
 	protected $errors = array();
 	
 	/**

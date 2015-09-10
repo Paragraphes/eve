@@ -17,12 +17,13 @@ if (!defined("EVE_APP"))
  */
 class Managers{
 	
+	/**
+	 * The given model is an empty string or non-string argument.
+	 */
 	const ERROR920 = "Error 920: The given model [%s] is invalid.";
-	const ERROR921 = "Error 921: The given model [%s] is invalid.";
+	const ERROR921 = "Error 921: No managers were found corresponding to the given model [%s].";
 	const ERROR930 = "Error 930: Trying to get undefined DAO API [%s].";
 	const ERROR940 = "Error 940: Could not find given DAO [%s].";
-	const ERROR941 = "Error 941: Could not find given DAO [%s].";
-	const ERROR942 = "Error 942: Could not find given DAO [%s].";
 	
 	/**
 	 * The name of the api wanted in this Managers
@@ -154,7 +155,7 @@ class Managers{
 			$type = $this->api;
 	
 		if(!in_array($type, self::$dao))
-			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Manager", self::ERROR941, __FILE__, __LINE__));
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Manager", self::ERROR940, __FILE__, __LINE__));
 			
 		DAO_Factory::beginTransaction($type);
 	}
@@ -172,7 +173,7 @@ class Managers{
 			$type = $this->api;
 		
 		if(!in_array($type, self::$dao))
-			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Manager", self::ERROR942, __FILE__, __LINE__));
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Manager", self::ERROR940, __FILE__, __LINE__));
 		
 		DAO_Factory::rollBack($type);
 	}

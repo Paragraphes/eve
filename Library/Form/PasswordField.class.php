@@ -21,7 +21,7 @@ if (!defined("EVE_APP"))
  * @author Zellweger Vincent
  * @version 1.0
  */
-class PasswordField extends StringField{
+class PasswordField extends StringField {
 	/**
 	 * (non-PHPdoc)
 	 * @see \Library\Form\StringField::buildWidget()

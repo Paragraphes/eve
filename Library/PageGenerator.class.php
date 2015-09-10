@@ -16,17 +16,26 @@ if (!defined("EVE_APP"))
  * 
  * @copyright ParaGP Swizerland
  * @author Zellweger Vincent
+ * @author Toudoudou
  * @version 1.0
  */
 class PageGenerator extends ApplicationComponent{
 	
 	/**
-	 * The support does not have a subclasse of Page corresponding to it
-	 * @var unknown
+	 * The support does not have a subclasse of Page corresponding to it.
 	 */
-	const ERROR1000 = "Error 1000: Error on Page instantiation.";
-	const ERROR1010 = "Error 1010: The key must be a valid String.";
+	const ERROR1000 = "Error 1000: Error on Page instantiation for page type [%s].";
+	/**
+	 * Tried to add a variable whose name is an empty string or non-string.
+	 */
+	const ERROR1010 = "Error 1010: The key must be a valid string.";
+	/**
+	 * Tried to set the support type of a page to an empty string or non-string value.
+	 */
 	const ERROR1020 = "Error 1020: The support must be in a valid format.";
+	/**
+	 * Tried to set the view to an empty string or non-string argument.
+	 */
 	const ERROR1030 = "Error 1030: The given view is invalid.";
 	
 	/**
@@ -104,7 +113,7 @@ class PageGenerator extends ApplicationComponent{
 		$page = new $page($this->app, $this->contentFile, $this->vars, $this->attribute);
 
 		if (!($page instanceof \Library\Page\Page))
-			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Page", self::ERROR1000, __FILE__, __LINE__));
+			throw new \RuntimeException(\Library\Application::logger()->log("Error", "Page", sprintf(self::ERROR1000, $this->support), __FILE__, __LINE__));
 		
 		$method = "generate" . $this->error;
 		
@@ -316,7 +325,7 @@ class PageGenerator extends ApplicationComponent{
 		$this->vars[$key] = $value;
 		return 1;
 	}
-	//TODO: check
+	//TODO: check the return 0/1?
 	
 	/**
 	 * Returns the value of a variable instead of a specific key.

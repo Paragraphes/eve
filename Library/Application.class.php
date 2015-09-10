@@ -195,7 +195,7 @@ abstract class Application{
 			 */
 			
 			if ($matchedRoute->needConnection() && !$this->user->isAuthenticated()) {
-				//TODO: decide on action for xml and json
+				//TODO: decide on specific action for xml and json
 				switch ($matchedRoute->type()) {
 					case "xml":
 					case "json":
@@ -255,7 +255,6 @@ abstract class Application{
 		}
 		
 		if (! $controller instanceof BackController) {
-			//TODO: check w vincent
 				if (\Library\Application::appConfig()->getConst("LOG")) {
 					ob_start();
 					var_dump($controller);

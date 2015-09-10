@@ -7,12 +7,33 @@ if (!defined("EVE_APP"))
 
 class languageManager_PDO extends \Library\Manager_PDO implements languageManager {
 	
+	/**
+	 * No language was found for the given key while null returns were forbidden.
+	 */
 	const ERROR10200 = "Error 10200: Language could not be found.";
+	/**
+	 * The update method is not defined for this subclass of Manager_PDO.
+	 */
 	const ERROR10250 = "Error 10250: Cannot update entity.";
+	/**
+	 * The insert method is not defined for this subclass of Manager_PDO.
+	 */
 	const ERROR10255 = "Error 10255: Cannot insert entity.";
+	/**
+	 * The send method is not defined for this subclass of Manager_PDO.
+	 */
 	const ERROR10260 = "Error 10260: Cannot send entity.";
+	/**
+	 * The delete method is not defined for this subclass of Manager_PDO.
+	 */
 	const ERROR10265 = "Error 10265: Cannot delete entity.";
+	/**
+	 * The deleteList method is not defined for this subclass of Manager_PDO.
+	 */
 	const ERROR10266 = "Error 10266: Cannot delete entities.";
+	/**
+	 * The given key was not an instance or subclass of {@see \Library\Entities\Language}.
+	 */
 	const ERROR10290 = "Error 10290: The key must be a Language.";
 	
 	public function get($pLang) {

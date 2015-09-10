@@ -29,6 +29,9 @@ if (!defined("EVE_APP"))
  */
 class PagePdf extends Page {
 	
+	/**
+	 * Could not find the file corresponding to the given contentfile.
+	 */
 	const ERROR1050 = "Error 1050: The given view does not exist.";
 	
 	/**

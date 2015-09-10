@@ -19,7 +19,7 @@ if (!defined("EVE_APP"))
  * @author Zellweger Vincent
  * @version 1.0
  */
-class LangField extends SelectField{
+class LangField extends SelectField {
 	/**
 	 * List of value
 	 * @var string[]

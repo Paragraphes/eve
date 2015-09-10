@@ -32,16 +32,12 @@ if (!defined("EVE_APP"))
  * @author Zellweger Vincent
  * @version 1.0
  */
-class SelectField extends Field{
+class SelectField extends Field {
 	
 	/**
 	 * There was an error with the number of brackets while parsing.
 	 */
 	const ERROR750 = "Error 750: The argument format is invalid.";
-	/**
-	 * There was an error with the number of brackets while parsing.
-	 */
-	const ERROR751 = "Error 751: The argument format is invalid.";
 	
 	/**
 	 *All the different values of the select field. the elements of the array could be
@@ -152,7 +148,7 @@ class SelectField extends Field{
 			}
 		}
 		if($lvl != 0)
-			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Form", self::ERROR751, __FILE__, __LINE__));
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Form", self::ERROR750, __FILE__, __LINE__));
 		
 		return array($tArray, ++$key);
 	}

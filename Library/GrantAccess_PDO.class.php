@@ -17,7 +17,9 @@ if (!defined("EVE_APP"))
 class GrantAccess_PDO extends GrantAccess {
 	
 	const ERROR820 = "Error 820: Disconnected while granting access.";
-	const ERROR821 = "Error 821: Disconnected while granting access.";
+	/**
+	 * Admin level is insufficient to obtain access to the desired route.
+	 */
 	const ERROR830 = "Error 830: Access to road [%s] denied.";
 	
 	/**
@@ -120,7 +122,7 @@ class GrantAccess_PDO extends GrantAccess {
 			$infos = $requete->fetchAll(\PDO::FETCH_OBJ);
 			
 			if(count($infos) == 0)
-				throw new \Library\Exception\AccessException(\Library\Application::logger()->log("Error", "AccessError", self::ERROR821, __FILE__, __LINE__), \Library\Exception\AccessException::TIME_FINISHED);
+				throw new \Library\Exception\AccessException(\Library\Application::logger()->log("Error", "AccessError", self::ERROR820, __FILE__, __LINE__), \Library\Exception\AccessException::TIME_FINISHED);
 		
 			$requete = $dao->prepare("UPDATE connexion_log SET date_clk = NOW() WHERE id = :id;");
 			$requete->bindValue(':id', $infos[0]->id);

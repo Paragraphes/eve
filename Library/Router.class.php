@@ -24,11 +24,15 @@ abstract class Router {
 	
 	const HTTP301 = "301 MOVED PERMANENTLY";
 	
+	/**
+	 * The given DAO is an empty string or non-string argument.
+	 */
 	const ERROR1110 = "Error 1110: DAO must be a valid string.";
+	/**
+	 * Could not find a Router subclass corresponding to the given DAO.
+	 */
 	const ERROR1115 = "Error 1115: Trying to use illegal DAO [%s].";
-	const ERROR1199 = "Error 1199: The ID must be a number.";
 	const ERROR1120 = "Error 1120: No route found for the url [%s].";
-	const ERROR1130 = "Error 1130: Variable [%s] already exists, cannot replace by force.";
 	
 	/**
 	 * Contains a list of all the different possible {@see \Library\Route} of the application

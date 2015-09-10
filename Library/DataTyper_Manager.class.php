@@ -22,7 +22,7 @@ if (!defined("EVE_APP"))
  * @version 1.0
  * @abstract
  */
-abstract class DataTyper_Manager{
+abstract class DataTyper_Manager {
 
 	/**
 	 * Has to return an array that contains the different informations about the datatype

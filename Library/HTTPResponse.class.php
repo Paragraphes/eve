@@ -16,9 +16,10 @@ if (!defined("EVE_APP"))
  * 
  * @copyright ParaGP Swizerland
  * @author Zellweger Vincent
+ * @author Toudoudou
  * @version 1.0
  */
-class HTTPResponse extends ApplicationComponent{
+class HTTPResponse extends ApplicationComponent {
 	
 	/**
 	 * An instance of {@see \Library\PageGenerator} used to show the page.

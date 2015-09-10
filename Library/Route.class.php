@@ -12,9 +12,13 @@ if (!defined("EVE_APP"))
  *
  * @copyright ParaGP Swizerland
  * @author Zellweger Vincent
+ * @author Toudoudou
  * @version 1.0
  */
 class Route{
+	
+	const ERROR1130 = "Error 1130: Variable [%s] already exists, cannot replace by force.";
+	const ERROR1199 = "Error 1199: The ID must be a number.";
 	
 	/**
 	 * The ID of the route
@@ -69,7 +73,7 @@ class Route{
 	
 	/**
 	 * Preferred support type for this page
-	 * @var unknown
+	 * @var string
 	 */
 	protected $type;
 	
@@ -159,7 +163,7 @@ class Route{
 	 */
 	public function setId($pVal){
 		if (!is_numeric($pVal) || empty($pVal))
-			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Route", \Library\Router::ERROR1199, __FILE__, __LINE__));
+			throw new \InvalidArgumentException(\Library\Application::logger()->log("Error", "Route", self::ERROR1199, __FILE__, __LINE__));
 				
 		$this->id = $pVal;
 	}
@@ -224,7 +228,7 @@ class Route{
 	 */
 	public function addVarInListe($key, $val, $force = 0) {
 		if (key_exists($key, $this->varsListe) && $force == 0) {
-			throw new \Exception(\Library\Application::logger("Error", "Route", sprintf(\Library\Router::ERROR1130, $key), __FILE__, __LINE__)->log());
+			throw new \Exception(\Library\Application::logger("Error", "Route", sprintf(self::ERROR1130, $key), __FILE__, __LINE__)->log());
 		}
 		$this->varsListe[$key] = $val;
 	}
@@ -296,6 +300,11 @@ class Route{
 		return $this->admin_lvl;
 	}
 	
+	/**
+	 * getter of route type
+	 * 
+	 * @return string
+	 */
 	public function type() {
 		return $this->type;
 	}

@@ -19,7 +19,7 @@ if (!defined("EVE_APP"))
  * @author Zellweger Vincent
  * @version 1.0
  */
-class HiddenField extends Field{
+class HiddenField extends Field {
 	
 	/**
 	 * (non-PHPdoc)

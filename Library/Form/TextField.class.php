@@ -25,7 +25,8 @@ if (!defined("EVE_APP"))
  * @author Zellweger Vincent
  * @version 1.0
  */
-class TextField extends Field{
+class TextField extends Field {
+	
 	/**
 	 * Number of columns
 	 * @var int

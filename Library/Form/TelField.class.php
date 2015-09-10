@@ -23,7 +23,7 @@ if (!defined("EVE_APP"))
  * @author Zellweger Vincent
  * @version 1.0
  */
-class TelField extends Field{
+class TelField extends Field {
 	/**
 	 * (non-PHPdoc)
 	 * @see \Library\Form\Field::buildWidget()

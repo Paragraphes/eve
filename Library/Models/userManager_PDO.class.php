@@ -11,7 +11,7 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 	
 	const ERROR10300 = "Error 10300: There already exists a user with this login.";
 	const ERROR10310 = "Error 10310: Failed to update value.";
-	const ERROR10315 = "Error 10315: Failed to insert value.";
+	const ERROR10315 = "Error 10315: Failed to insert value in group.";
 	const ERROR10316 = "Error 10316: Failed to insert value.";
 	const ERROR10390 = "Error 10390: The key must be a user.";
 	const ERROR10392 = "Error 10392: The ID must be a number.";
@@ -89,7 +89,7 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 		
 		$info = $query->fetch(\PDO::FETCH_ASSOC);
 		
-		if ($info["nbr"] != 0) { //TODO: what does this correspond to?
+		if ($info["nbr"] != 0) { //TODO: throw?
 			return -1;
 		}
 		

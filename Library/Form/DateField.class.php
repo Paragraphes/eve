@@ -23,7 +23,7 @@ if (!defined("EVE_APP"))
  * @author Zellweger Vincent
  * @version 1.0
  */
-class DateField extends Field{
+class DateField extends Field {
 	/**
 	 * (non-PHPdoc)
 	 * @see \Library\Form\Field::buildWidget()
