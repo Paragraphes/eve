@@ -123,7 +123,14 @@ class Managers{
 		return self::$dao[$api];
 	}
 	
-	
+	/**
+	 * Begins a transaction for the given type.
+	 * If the type is null, it uses that of the current api.
+	 * 
+	 * @param string $type
+	 * @throws \RuntimeException
+	 * 		If the DAO cannot be found
+	 */
 	public static function beginTransaction($type = null) {
 		if ($type == null)
 			$type = $this->api;
@@ -134,6 +141,14 @@ class Managers{
 		DAO_Factory::beginTransaction($type);
 	}
 	
+	/**
+	 * Commits a transaction for the given type.
+	 * If the type is null, it uses that of the current api.
+	 *
+	 * @param string $type
+	 * @throws \RuntimeException
+	 * 		If the DAO cannot be found
+	 */
 	public static function commitTransaction($type = null) {
 		if ($type == null)
 			$type = $this->api;
@@ -144,6 +159,14 @@ class Managers{
 		DAO_Factory::beginTransaction($type);
 	}
 	
+	/**
+	 * Rolls back a transaction for the given type.
+	 * If the type is null, it uses that of the current api.
+	 *
+	 * @param string $type
+	 * @throws \RuntimeException
+	 * 		If the DAO cannot be found
+	 */
 	public static function rollBack($type = null) {
 		if ($type == null)
 			$type = $this->api;
