@@ -116,14 +116,20 @@ abstract class Manager_PDO extends \Library\Manager {
 	}
 	
 	/**
-	 * (non-PHPdoc)
+	 * @param pId
+	 * @param 2nd unnamed parameter ("empty")
+	 * 		if present and false, empty results throw an exception.
+	 * @param 3rd unnamed parameter ("cache")
+	 * 		if present and false, items are reloaded and not taken from cache.
+	 * @throws \Library\Exception\PDOException
+	 * 		if empty result is found but not allowed.
 	 * @see \Library\Manager::get()
 	 */
 	public function get($pId) {
 		if (!is_numeric($pId))
 			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR1499, __FILE__, __LINE__), \Library\Exception\PDOException::INVALID_ID);
 		
-		if (!in_array($pId, $this->listeObj)) {
+		if (!in_array($pId, $this->listeObj) || (func_num_args() >= 3 && !func_get_arg(2))) {
 			$sql = "SELECT `" . implode("`, `", array_keys($this->listeElem)) . "` FROM " . $this->table_name . " WHERE id = :pId;";
 			
 			$query = $this->dao->prepare($sql);
@@ -135,6 +141,7 @@ abstract class Manager_PDO extends \Library\Manager {
 			$query->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $this->entity_name);
 			$this->listeObj[$pId] = $query->fetch();
 		}
+		
 		if(empty($this->listeObj[$pId]) && func_num_args() >= 2 && !func_get_arg(1))
 			throw new \Library\Exception\PDOException(\Library\Application::logger()->log("Error", "PDO", self::ERROR1400, __FILE__, __LINE__), \Library\Exception\PDOException::EMPTY_RESULT);
 		

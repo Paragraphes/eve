@@ -27,7 +27,7 @@ class PDOFactory implements DAO_Interface {
 	 */
 	const ERROR312 = "Error 302: Could not commit PDO transaction.";
 	
-	private $instance = null;
+	private static $instance = null;
 	
 	/**
 	 * Static method that gives a new connection on the DB using the PDO API.
@@ -38,20 +38,20 @@ class PDOFactory implements DAO_Interface {
 	 * @return \PDO
 	 */
 	public static function getConnexion() {
-		if ($instance == null) {
+		if (self::$instance == null) {
 			try{
-				$instance = new \PDO('mysql:host=' . \Library\Application::appConfig()->getConst("BDD_HOST")
+				self::$instance = new \PDO('mysql:host=' . \Library\Application::appConfig()->getConst("BDD_HOST")
 								. ';dbname=' . \Library\Application::appConfig()->getConst("BDD_NAME"). ''
 								, \Library\Application::appConfig()->getConst("BDD_USER")
 								, \Library\Application::appConfig()->getConst("BDD_PASSWORD"));
 				
-				$instance->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+				self::$instance->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 			} catch(\Exception $e) {
 				throw new \RuntimeException(\Library\Application::logger()->log("Error", "DatabaseConnection", self::ERROR310, __FILE__, __LINE__));
 				exit();
 			}
 		}
-		return $instance;
+		return self::$instance;
 	}
 	
 	public static function beginTransaction() {
