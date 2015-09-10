@@ -27,6 +27,9 @@ class PDOFactory implements DAO_Interface {
 	 */
 	const ERROR312 = "Error 302: Could not commit PDO transaction.";
 	
+	/**
+	 * Static instance of the connection, to ensure it's not needlessly recreated.
+	 */
 	private static $instance = null;
 	
 	/**
