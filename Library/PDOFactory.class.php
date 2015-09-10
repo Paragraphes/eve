@@ -54,6 +54,12 @@ class PDOFactory implements DAO_Interface {
 		return self::$instance;
 	}
 	
+	/**
+	 * Static method that begins a transaction with the PDO API.
+	 * 
+	 * @throws \RuntimeException
+	 * 			If an exception happens while trying to begin the transaction.
+	 */
 	public static function beginTransaction() {
 		try {
 			$instance->beginTransaction();
@@ -62,6 +68,13 @@ class PDOFactory implements DAO_Interface {
 		}
 	}
 	
+	/**
+	 * Static method that commits a transaction with the PDO API.
+	 * If any exceptions occur while committing, the changes are rolled back.
+	 * 
+	 * @throws \RuntimeException
+	 * 			If an exception happens while trying to commit the transaction.
+	 */
 	public static function commitTransaction() {
 		try {
 			$instance->commit();
@@ -71,6 +84,9 @@ class PDOFactory implements DAO_Interface {
 		}
 	}
 	
+	/**
+	 * Static method that rolls  back a transaction with the PDO API.
+	 */
 	public static function rollBack() {
 		$instance->rollBack();
 	}
