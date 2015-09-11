@@ -32,7 +32,7 @@ abstract class AppConfig {
 			return $class->getConstant($pVal);
 		
 		//TODO: set an error code?
-		throw new \RuntimeException("Constant [" . $pVal . "] is not defined.");
+		return null;
 	}
 }
 

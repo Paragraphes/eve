@@ -12,7 +12,7 @@ if (!defined("EVE_APP"))
 * @extends Application
 *
 */
-class EveApplication extends \Library\Application{
+class EveApplication extends \Library\Application {
 	
 	// Crée une application nommée PlatPub
 	public function __construct($root){

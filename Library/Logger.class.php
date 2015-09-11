@@ -232,7 +232,7 @@ class Logger extends ApplicationComponent{
 		}
 		
 		if (\Library\Application::appConfig()->getConst("DEBUG") || !\Library\Application::appConfig()->getConst("LOG")) {
-			return $ret;
+			return $row;
 		} else {
 			$row .= "---------------------------------------------------------------------------------------\r\n";
 			

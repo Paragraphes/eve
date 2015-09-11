@@ -31,7 +31,7 @@ class userManager_PDO extends \Library\Manager_PDO implements userManager {
 	}
 	
 	public function get($pId) {
-		return parent::get(func_get_args())->setAttr($this->getUserAttribute($pId));
+		return call_user_func_array(array(parent, "get"), func_get_args())->setAttr($this->getUserAttribute($pId));
 	}
 	
 	public function getListSubUser() {

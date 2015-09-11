@@ -34,7 +34,7 @@ class GrantAccess_PDO extends GrantAccess {
 		
 		if($pRoute->admin_lvl() && $pUser !== NULL){
 			
-			$dao = PDOFactory::getMysqlConnexion();
+			$dao = PDOFactory::getConnexion();
 			
 			
 			$sql = "
